@@ -1,4 +1,4 @@
-package com.example.buck_tanley.contoller;
+package com.example.buck_tanley.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
