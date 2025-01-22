@@ -7,4 +7,5 @@ import com.example.buck_tanley.domain.entity.Match;
 
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Long> {
+    boolean existsByUserId1AndUserId2(String userId1, String userId2);
 }
