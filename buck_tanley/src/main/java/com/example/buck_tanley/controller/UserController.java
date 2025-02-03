@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping("/create")
     public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User userDetail) {
-        User user = userService.creatUser(userDetail);
+        User user = userService.createUser(userDetail);
         ApiResponse<User> response = new ApiResponse<User>(200, true, "회원가입 성공!", user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
