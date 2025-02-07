@@ -27,6 +27,7 @@ class _PageRouterState extends State<PageRouter> {
         child: Text("채팅"),
       ),
       ChattingPage(),
+      ChattingPage(),
     ];
     return Scaffold(
       body: PageView(
@@ -57,7 +58,8 @@ class _PageRouterState extends State<PageRouter> {
           },
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.replay), label: '매칭'),
-            BottomNavigationBarItem(icon: Icon(Icons.menu), label: '메뉴'),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: '친구'),
+            BottomNavigationBarItem(icon: Icon(Icons.forum), label: '채팅'),
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: '설정'),
           ],
           selectedItemColor: Colors.blue, // 선택된 아이템 색상
