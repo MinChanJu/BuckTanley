@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 
@@ -14,39 +15,73 @@ class _MiniGameState extends State<MiniGame> {
   bool isJumping = false;
   bool dinosaur = false;
   double dinoY = 1;
-  double obstacleX = 1;
+  List<double> obstacleX = [1];
   int score = 0;
   int highScore = 0;
-  Timer? gameTimer;
+  Timer? game, img, jump;
+  late Image _dino1, _dino2, _block;
 
-  void startGame() {
+  @override
+  void initState() {
+    super.initState();
+    _dino1 = Image.asset("assets/images/dinosaur1.png", scale: 1.5);
+    _dino2 = Image.asset("assets/images/dinosaur2.png", scale: 1.5);
+    _block = Image.asset("assets/images/block.png", scale: 2);
+  }
+
+  @override
+  void dispose() {
+    game?.cancel();
+    img?.cancel();
+    jump?.cancel();
+    super.dispose();
+  }
+
+  void gaming() {
+    Random random = Random();
+    int randomInt = random.nextInt(6);
+    int spawn = 0;
     finish = false;
     isJumping = false;
     dinoY = 1;
-    obstacleX = 1;
+    obstacleX = [1];
     score = 0;
 
-    gameTimer = Timer.periodic(Duration(milliseconds: 30), (timer) {
-      setState(() {
-        obstacleX -= 0.02; // 장애물 왼쪽으로 이동
-        score++;
+    game = Timer.periodic(Duration(milliseconds: 20), (timer) {
+      if (mounted) {
+        setState(() {
+          score++;
+          spawn++;
 
-        if (obstacleX < -1) {
-          obstacleX = 1;
-        }
+          for (var i = 0; i < obstacleX.length; i++) {
+            obstacleX[i] -= 0.02;
+          }
 
-        if (checkCollision()) {
-          timer.cancel();
-          finish = true;
-          highScore = score > highScore ? score : highScore;
-        }
-      });
+          if (obstacleX.isNotEmpty && obstacleX[0] < -1) {
+            obstacleX.removeAt(0);
+          }
+
+          if (checkCollision()) {
+            timer.cancel();
+            finish = true;
+            highScore = score > highScore ? score : highScore;
+          }
+
+          if (spawn > 50 + (randomInt*5)) {
+            obstacleX.add(1);
+            spawn = 0;
+            randomInt = random.nextInt(20);
+          }
+        });
+      }
     });
 
-    Timer.periodic(Duration(milliseconds: 250), (timer) {
-      setState(() {
-        dinosaur = !dinosaur;
-      });
+    img = Timer.periodic(Duration(milliseconds: 200), (timer) {
+      if (mounted) {
+        setState(() {
+          dinosaur = !dinosaur;
+        });
+      }
 
       if (finish) {
         timer.cancel();
@@ -54,19 +89,21 @@ class _MiniGameState extends State<MiniGame> {
     });
   }
 
-  void jump() {
+  void jumping() {
     if (isJumping) return;
     isJumping = true;
     double time = 0;
     double initialPos = dinoY;
 
-    Timer.periodic(Duration(milliseconds: 35), (timer) {
+    jump = Timer.periodic(Duration(milliseconds: 23), (timer) {
       time += 0.03;
       double height = 4 * time * (1 - time);
 
-      setState(() {
-        dinoY = initialPos - height;
-      });
+      if (mounted) {
+        setState(() {
+          dinoY = initialPos - height;
+        });
+      }
 
       if (finish) {
         timer.cancel();
@@ -81,59 +118,33 @@ class _MiniGameState extends State<MiniGame> {
   }
 
   bool checkCollision() {
-    return (-0.9 < obstacleX && obstacleX < -0.5) && (dinoY >= 0.5);
+    for (var i = 0; i < obstacleX.length; i++) {
+      if ((-0.9 < obstacleX[i] && obstacleX[i] < -0.5) && (dinoY >= 0.5)) return true;
+    }
+    return false;
   }
 
-  Widget finishGame() {
+  Widget startGame() {
     return AnimatedOpacity(
-      opacity: finish ? 1.0 : 0.0, // 서서히 나타나기
-      duration: const Duration(seconds: 1), // 애니메이션 지속 시간
-      curve: Curves.easeInOut, // 부드러운 효과
-      child: Positioned(
-        top: 10,
-        right: 20,
-        child: finish
-            ? AnimatedContainer(
-                alignment: Alignment(0, 0),
-                duration: Duration(milliseconds: 0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('점수: $score', style: TextStyle(fontSize: 24)),
-                    Text('최고 점수: $highScore', style: TextStyle(fontSize: 17)),
-                  ],
-                ),
-              )
-            : Container(),
-      ),
-    );
-  }
-
-  Widget gaming() {
-    return AnimatedOpacity(
-      opacity: finish ? 0.2 : 1.0, // 서서히 나타나기
-      duration: const Duration(milliseconds: 200), // 애니메이션 지속 시간
-      curve: Curves.easeInOut, // 부드러운 효과
+      opacity: finish ? 0.2 : 1.0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
       child: Stack(
         children: [
           AnimatedContainer(
             alignment: Alignment(-0.7, dinoY),
             duration: Duration(milliseconds: 0),
-            child: Image.asset(
-              dinosaur ? "assets/images/dinosaur1.png" : "assets/images/dinosaur2.png",
-              scale: 1.5,
-            ),
+            child: dinosaur ? _dino1 : _dino2,
           ),
-
-          AnimatedContainer(
-            alignment: Alignment(obstacleX, 1),
-            duration: Duration(milliseconds: 0),
-            child: Image.asset(
-              "assets/images/block.png",
-              scale: 2,
+          () {
+            return Container();
+          }(),
+          for (int i = 0; i < obstacleX.length; i++)
+            AnimatedContainer(
+              alignment: Alignment(obstacleX[i], 1),
+              duration: Duration(milliseconds: 0),
+              child: _block,
             ),
-          ),
-
           // 점수 표시
           Positioned(
             top: 10,
@@ -145,6 +156,27 @@ class _MiniGameState extends State<MiniGame> {
     );
   }
 
+  Widget finishGame() {
+    return AnimatedOpacity(
+      opacity: finish ? 1.0 : 0.0,
+      duration: const Duration(seconds: 1),
+      curve: Curves.easeInOut,
+      child: finish
+          ? AnimatedContainer(
+              alignment: Alignment(0, 0),
+              duration: Duration(milliseconds: 0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('점수: $score', style: TextStyle(fontSize: 24)),
+                  Text('최고 점수: $highScore', style: TextStyle(fontSize: 17)),
+                ],
+              ),
+            )
+          : Container(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -153,11 +185,10 @@ class _MiniGameState extends State<MiniGame> {
           const SizedBox(height: 100),
           GestureDetector(
             onTap: () {
-              if (gameTimer == null || !gameTimer!.isActive || finish) {
-                finish = false;
-                startGame();
+              if (finish) {
+                gaming();
               } else {
-                jump();
+                jumping();
               }
             },
             child: Padding(
@@ -173,7 +204,7 @@ class _MiniGameState extends State<MiniGame> {
                 height: 200,
                 child: Stack(children: [
                   finishGame(),
-                  gaming(),
+                  startGame(),
                 ]),
               ),
             ),
