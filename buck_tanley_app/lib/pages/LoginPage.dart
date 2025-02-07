@@ -1,4 +1,7 @@
+import 'package:buck_tanley_app/provider/UserProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart' as app_provider;
+
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -12,8 +15,7 @@ class LoginPage extends StatelessWidget {
         centerTitle: true,
         title: SizedBox(
           height: 50,
-          child: Image.asset('assets/images/BuckTanleyLogo.png',
-              fit: BoxFit.contain),
+          child: Image.asset('assets/images/BuckTanleyLogo.png', fit: BoxFit.contain),
         ),
       ),
       body: Column(
@@ -52,7 +54,11 @@ class LoginPage extends StatelessWidget {
                     Align(
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
-                          onPressed: () {}, child: const Text('로그인')),
+                        onPressed: () {
+                          app_provider.Provider.of<UserProvider>(context, listen: false).login("sgndsflonlas");
+                        },
+                        child: const Text('로그인'),
+                      ),
                     )
                   ],
                 ),
