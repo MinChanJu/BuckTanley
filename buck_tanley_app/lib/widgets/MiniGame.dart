@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class MiniGame extends StatefulWidget {
@@ -144,7 +145,6 @@ class _MiniGameState extends State<MiniGame> {
               duration: Duration(milliseconds: 0),
               child: _block,
             ),
-
           // 점수 표시
           Positioned(
             top: 10,
