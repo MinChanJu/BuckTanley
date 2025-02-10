@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:buck_tanley_app/widgets/AdBanner.dart';
+import 'package:buck_tanley_app/widgets/LogoAppBar.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -34,16 +36,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: SizedBox(
-          height: 50,
-          child: Image.asset('assets/images/BuckTanleyLogo.png',
-              fit: BoxFit.contain),
-        ),
-      ),
+      appBar: const LogoAppBar(),
       body: Column(
         children: [
           const SizedBox(height: 20),
@@ -212,13 +205,7 @@ class _RegisterPageState extends State<RegisterPage> {
         ],
       ),
       // 광고 영역  - 배너 클릭시 링크 연결되게 수정해야 하니 버튼으로 변경해야함
-      bottomNavigationBar: Container(
-        color: Colors.grey[300],
-        height: 100,
-        width: double.infinity,
-        alignment: Alignment.center,
-        child: const Text('광고'),
-      ),
+      bottomNavigationBar: const AdBanner(),
     );
   }
 }
