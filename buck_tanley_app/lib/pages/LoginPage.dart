@@ -1,7 +1,8 @@
+import 'package:buck_tanley_app/pages/RegisterPage.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as app_provider;
-
+import 'package:flutter/gestures.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -15,7 +16,8 @@ class LoginPage extends StatelessWidget {
         centerTitle: true,
         title: SizedBox(
           height: 50,
-          child: Image.asset('assets/images/BuckTanleyLogo.png', fit: BoxFit.contain),
+          child: Image.asset('assets/images/BuckTanleyLogo.png',
+              fit: BoxFit.contain),
         ),
       ),
       body: Column(
@@ -55,7 +57,9 @@ class LoginPage extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
                         onPressed: () {
-                          app_provider.Provider.of<UserProvider>(context, listen: false).login("sgndsflonlas");
+                          app_provider.Provider.of<UserProvider>(context,
+                                  listen: false)
+                              .login("sgndsflonlas");
                         },
                         child: const Text('로그인'),
                       ),
@@ -65,9 +69,49 @@ class LoginPage extends StatelessWidget {
               ),
             ),
           ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('ID 찾기  |  PW 찾기  |  회원가입'),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: 'ID 찾기',
+                  style: const TextStyle(color: Colors.blue),
+                  /*recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FindIdPage()),
+                      );
+                    }, */
+                ),
+                const TextSpan(text: '  |  '),
+                TextSpan(
+                  text: 'PW 찾기',
+                  style: const TextStyle(color: Colors.blue),
+                  /*recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const FindPwPage()),
+                      );
+                    },*/
+                ),
+                const TextSpan(text: '  |  '),
+                TextSpan(
+                  text: '회원가입',
+                  style: const TextStyle(color: Colors.blue),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const RegisterPage()),
+                      );
+                    },
+                ),
+              ],
+            ),
           ),
           const Spacer(),
         ],

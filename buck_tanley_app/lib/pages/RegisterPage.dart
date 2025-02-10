@@ -1,6 +1,7 @@
-import 'dart:ffi';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -12,8 +13,23 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nicknameController = TextEditingController(); // 닉네임
   final TextEditingController _bioController = TextEditingController(); // 자기소개
+  final TextEditingController _ageController = TextEditingController(); // 생년월일
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(); // 이메일
   String? selectedGender;
+  File? _image;
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +76,35 @@ class _RegisterPageState extends State<RegisterPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
+                      // 프로필 이미지
+                      Center(
+                        child: GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[400],
+                              borderRadius: BorderRadius.circular(10),
+                              image: _image != null
+                                  ? DecorationImage(
+                                      image: FileImage(_image!),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : null,
+                            ),
+                            child: _image == null
+                                ? const Icon(
+                                    Icons.camera_alt,
+                                    size: 40,
+                                    color: Colors.white10,
+                                  )
+                                : null,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      
                       TextField(
                         controller: _idController,
                         decoration: const InputDecoration(labelText: 'ID'),
@@ -71,9 +116,40 @@ class _RegisterPageState extends State<RegisterPage> {
                         obscureText: true,
                       ),
                       const SizedBox(height: 20),
+
+                      TextField(
+                        controller: _nicknameController,
+                        decoration: const InputDecoration(labelText: '닉네임'),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _ageController,
+                        decoration: const InputDecoration(
+                          hintText: '000000',
+                          labelText: '생년월일',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      //비밀번호 찾기용
+                      TextField(
+                        controller: _phoneController,
+                        decoration: const InputDecoration(
+                          hintText: '010-0000-0000',
+                          labelText: '전화번호',
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(labelText: 'e-mail'),
+                      ),
+                      const SizedBox(height: 20),
+
                       const Text(
                         "성별",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Row(
                         children: [
@@ -103,7 +179,8 @@ class _RegisterPageState extends State<RegisterPage> {
                       const SizedBox(height: 20),
                       const Text(
                         "자기소개 (20자 미만)",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       TextField(
                         controller: _bioController,
