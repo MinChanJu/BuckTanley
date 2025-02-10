@@ -1,5 +1,6 @@
 import 'package:buck_tanley_app/pages/ChattingPage.dart';
 import 'package:buck_tanley_app/pages/MatchingPage.dart';
+import 'package:buck_tanley_app/pages/SettingPage.dart';
 import 'package:flutter/material.dart';
 
 class PageRouter extends StatefulWidget {
@@ -28,6 +29,7 @@ class _PageRouterState extends State<PageRouter> {
       ),
       ChattingPage(),
       ChattingPage(),
+      SettingPage(),
     ];
     return Scaffold(
       body: PageView(
