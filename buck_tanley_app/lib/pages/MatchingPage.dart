@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/widgets/MiniGame.dart';
+import 'package:buck_tanley_app/widgets/MiniGameWidget.dart';
 import 'package:flutter/material.dart';
 
 class MatchingPage extends StatefulWidget {
@@ -82,7 +82,7 @@ class _MatchingPageState extends State<MatchingPage> {
           opacity: showMiniGame ? 1.0 : 0.0, // 서서히 나타나기
           duration: const Duration(milliseconds: 1000), // 애니메이션 지속 시간
           curve: Curves.easeInOut, // 부드러운 효과
-          child: showMiniGame ? MiniGame() : Container(),
+          child: showMiniGame ? MiniGameWidget() : Container(),
         ),
       ],
     );

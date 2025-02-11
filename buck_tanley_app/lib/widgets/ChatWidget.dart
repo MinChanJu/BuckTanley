@@ -1,10 +1,10 @@
-import 'package:buck_tanley_app/models/Freind.dart';
+import 'package:buck_tanley_app/models/Chat.dart';
 import 'package:buck_tanley_app/pages/ChattingPage.dart';
 import 'package:flutter/material.dart';
 
-class Conversation extends StatelessWidget {
-  final Freind freind;
-  const Conversation({super.key, required this.freind});
+class ChatWidget extends StatelessWidget {
+  final Chat chat;
+  const ChatWidget({super.key, required this.chat});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class Conversation extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: AssetImage(freind.image == "" ? "assets/images/dinosaur1.png" : freind.image),
+              backgroundImage: AssetImage(chat.image == "" ? "assets/images/dinosaur1.png" : chat.image),
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(
@@ -40,14 +40,14 @@ class Conversation extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  freind.name,
+                  chat.name,
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  freind.last,
+                  chat.last,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w400,
@@ -61,7 +61,7 @@ class Conversation extends StatelessWidget {
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(freind.time),
+                Text(chat.time),
               ],
             ),
           ],

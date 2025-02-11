@@ -1,9 +1,9 @@
 import 'package:buck_tanley_app/models/Message.dart';
 import 'package:flutter/material.dart';
 
-class Chat extends StatelessWidget {
+class MessageWidget extends StatelessWidget {
   final Message message;
-  const Chat({super.key, required this.message});
+  const MessageWidget({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
