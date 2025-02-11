@@ -1,23 +1,23 @@
-class Freind {
+class Chat {
   final String image;
   final String name;
-  final String message;
-  final int status;
+  final String last;
+  final String time;
 
-  Freind({
+  Chat({
     required this.image,
     required this.name,
-    required this.message,
-    required this.status,
+    required this.last,
+    required this.time,
   });
 
   // JSON -> 객체 변환 (Spring API 응답을 받았을 때)
-  factory Freind.fromJson(Map<String, dynamic> json) {
-    return Freind(
+  factory Chat.fromJson(Map<String, dynamic> json) {
+    return Chat(
       image: json['image'],
       name: json['name'],
-      message: json['message'],
-      status: json['status'],
+      last: json['last'],
+      time: json['time'],
     );
   }
 
@@ -26,8 +26,8 @@ class Freind {
     return {
       'image': image,
       'name': name,
-      'message': message,
-      'status': status,
+      'last': last,
+      'time': time,
     };
   }
 }

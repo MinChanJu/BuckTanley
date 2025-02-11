@@ -1,6 +1,8 @@
-import 'package:buck_tanley_app/pages/ChattingPage.dart';
+import 'package:buck_tanley_app/pages/ChatListPage.dart';
+import 'package:buck_tanley_app/pages/FreindListPage.dart';
 import 'package:buck_tanley_app/pages/MatchingPage.dart';
 import 'package:buck_tanley_app/pages/SettingPage.dart';
+import 'package:buck_tanley_app/widgets/LogoAppBar.dart';
 import 'package:flutter/material.dart';
 
 class PageRouter extends StatefulWidget {
@@ -13,25 +15,17 @@ class PageRouter extends StatefulWidget {
 class _PageRouterState extends State<PageRouter> {
   int tab = 0;
   final PageController pageController = PageController();
+  final List<Widget> pages = [
+    MatchingPage(),
+    FreindListPage(),
+    ChatListPage(),
+    SettingPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
-      MatchingPage(),
-      ElevatedButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ChattingPage()),
-          );
-        },
-        child: Text("채팅"),
-      ),
-      ChattingPage(),
-      ChattingPage(),
-      SettingPage(),
-    ];
     return Scaffold(
+      appBar: LogoAppBar(),
       body: PageView(
         controller: pageController,
         children: pages,

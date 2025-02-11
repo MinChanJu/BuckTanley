@@ -3,14 +3,14 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-class MiniGame extends StatefulWidget {
-  const MiniGame({super.key});
+class MiniGameWidget extends StatefulWidget {
+  const MiniGameWidget({super.key});
 
   @override
-  State<MiniGame> createState() => _MiniGameState();
+  State<MiniGameWidget> createState() => _MiniGameWidgetState();
 }
 
-class _MiniGameState extends State<MiniGame> {
+class _MiniGameWidgetState extends State<MiniGameWidget> {
   bool finish = true;
   bool isJumping = false;
   bool dinosaur = false;

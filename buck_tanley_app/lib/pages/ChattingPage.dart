@@ -1,5 +1,5 @@
 import 'package:buck_tanley_app/models/Message.dart';
-import 'package:buck_tanley_app/widgets/Chat.dart';
+import 'package:buck_tanley_app/widgets/MessageWidget.dart';
 import 'package:flutter/material.dart';
 
 class ChattingPage extends StatefulWidget {
@@ -10,18 +10,22 @@ class ChattingPage extends StatefulWidget {
 }
 
 class _ChattingPageState extends State<ChattingPage> {
-  final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final TextEditingController _textController = TextEditingController();
   late AssetImage _opponent;
 
   @override
   void initState() {
     super.initState();
     _opponent = AssetImage('assets/images/dinosaur1.png');
+    // 처음 화면이 열릴 때 맨 아래로 이동
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _scrollController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
@@ -31,7 +35,43 @@ class _ChattingPageState extends State<ChattingPage> {
     Message(message: "message", type: 1, time: "time"),
     Message(message: "message", type: 2, time: "time"),
     Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
   ];
+
+  void _scrollToBottom() {
+    _scrollController.animateTo(
+      _scrollController.position.maxScrollExtent,
+      duration: Duration(milliseconds: 100),
+      curve: Curves.easeOut,
+    );
+  }
+
+  void _sendMessage() {
+    setState(() {
+      messages.add(Message(message: _textController.text, type: 1, time: "지금"));
+      _textController.text = "";
+    });
+    print("입력된 값: ${_textController.text}");
+
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +85,12 @@ class _ChattingPageState extends State<ChattingPage> {
       ),
       body: Container(
         color: Colors.red,
-        child: Column(
-          children: [
-            for (var i = 0; i < messages.length; i++)
-              Chat(message: messages[i])
-          ],
+        child: ListView.builder(
+          controller: _scrollController,
+          itemCount: messages.length,
+          itemBuilder: (context, index) {
+            return MessageWidget(message: messages[index]);
+          },
         ),
       ),
       bottomNavigationBar: Padding(
@@ -58,23 +99,14 @@ class _ChattingPageState extends State<ChattingPage> {
           children: [
             Expanded(
               child: TextField(
-                controller: _controller,
+                controller: _textController,
                 decoration: InputDecoration(
                   labelText: "메시지 입력",
                   border: OutlineInputBorder(),
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  messages.add(Message(message: _controller.text, type: 1, time: "지금"));
-                  _controller.text = "";
-                });
-                print("입력된 값: ${_controller.text}");
-              },
-              child: Text("입력값 확인"),
-            )
+            ElevatedButton(onPressed: _sendMessage, child: Icon(Icons.send))
           ],
         ),
       ),
