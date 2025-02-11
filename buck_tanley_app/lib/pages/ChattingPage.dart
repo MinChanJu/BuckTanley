@@ -1,3 +1,4 @@
+import 'package:buck_tanley_app/models/Message.dart';
 import 'package:buck_tanley_app/widgets/Chat.dart';
 import 'package:flutter/material.dart';
 
@@ -20,14 +21,16 @@ class _ChattingPageState extends State<ChattingPage> {
 
   @override
   void dispose() {
-    _controller.dispose(); // 메모리 누수 방지
+    _controller.dispose();
     super.dispose();
   }
 
-  List<List<dynamic>> data = [
-    ["안녕skkdsnksdnksdfnkdfnkdsnfkdnfkdsfnksdnfksdfnkdsfnksdfnkfdnksdfnksdndskfnsdfknfdknfsdkfdnksdnf", 1, "sd"],
-    ["어쩔", 2, " sd"],
-    ["ㅋㅋ", 1, "Sd"]
+  List<Message> messages = [
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 1, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
+    Message(message: "message", type: 2, time: "time"),
   ];
 
   @override
@@ -44,12 +47,8 @@ class _ChattingPageState extends State<ChattingPage> {
         color: Colors.red,
         child: Column(
           children: [
-            for (var i = 0; i < data.length; i++)
-              Chat(
-                message: data[i][0],
-                type: data[i][1],
-                time: data[i][2],
-              )
+            for (var i = 0; i < messages.length; i++)
+              Chat(message: messages[i])
           ],
         ),
       ),
@@ -69,7 +68,7 @@ class _ChattingPageState extends State<ChattingPage> {
             ElevatedButton(
               onPressed: () {
                 setState(() {
-                  data.add([_controller.text, 1, "지금"]);
+                  messages.add(Message(message: _controller.text, type: 1, time: "지금"));
                   _controller.text = "";
                 });
                 print("입력된 값: ${_controller.text}");
