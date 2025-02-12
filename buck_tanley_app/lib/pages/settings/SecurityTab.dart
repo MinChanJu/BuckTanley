@@ -5,6 +5,9 @@ class SecurityTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("보안 및 로그인 설정"));
+    return Scaffold(
+      appBar: AppBar(title: Text("보안 및 로그인 설정")),
+      body: Center(child: Text("보안 및 로그인 설정")),
+    );
   }
 }

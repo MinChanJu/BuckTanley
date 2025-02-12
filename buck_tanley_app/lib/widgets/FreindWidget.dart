@@ -26,9 +26,7 @@ class FreindWidget extends StatelessWidget {
               backgroundImage: AssetImage(freind.image == "" ? "assets/images/dinosaur1.png" : freind.image),
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
-            SizedBox(
-              width: 20,
-            ),
+            SizedBox(width: 20),
             Text(
               freind.name,
               style: TextStyle(
@@ -36,18 +34,17 @@ class FreindWidget extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(
-              width: 20,
-            ),
-            Text(
-              freind.message,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
+            SizedBox(width: 20),
             Expanded(
-              child: Container(),
+              child: Text(
+                freind.message,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w400,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+              ),
             ),
             () {
               var color = Colors.grey;

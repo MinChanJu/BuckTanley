@@ -1,3 +1,4 @@
+import 'package:buck_tanley_app/pages/PageRouter.dart';
 import 'package:buck_tanley_app/pages/RegisterPage.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
 import 'package:flutter/material.dart';
@@ -50,9 +51,11 @@ class LoginPage extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
                         onPressed: () {
-                          app_provider.Provider.of<UserProvider>(context,
-                                  listen: false)
-                              .login("sgndsflonlas");
+                          app_provider.Provider.of<UserProvider>(context, listen: false).login("sgndsflonlas");
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => PageRouter()),
+                          );
                         },
                         child: const Text('로그인'),
                       ),
@@ -98,8 +101,7 @@ class LoginPage extends StatelessWidget {
                     ..onTap = () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegisterPage()),
+                        MaterialPageRoute(builder: (context) => const RegisterPage()),
                       );
                     },
                 ),

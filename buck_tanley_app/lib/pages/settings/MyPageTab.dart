@@ -5,6 +5,9 @@ class MyPageTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("마이페이지 설정"));
+    return Scaffold(
+      appBar: AppBar(title: Text("마이페이지 설정")),
+      body: Center(child: Text("마이페이지 설정")),
+    );
   }
 }
