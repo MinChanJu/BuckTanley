@@ -37,7 +37,7 @@ class _MatchingPageState extends State<MatchingPage> {
       }
     });
 
-    Future.delayed(Duration(seconds: 10), () {
+    Future.delayed(Duration(seconds: 5), () {
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -72,12 +72,7 @@ class _MatchingPageState extends State<MatchingPage> {
   Widget during() {
     return Column(
       children: [
-        Text(
-          '매칭 중...',
-          style: TextStyle(
-            fontSize: 20,
-          ),
-        ),
+        Text('매칭 중...', style: TextStyle(fontSize: 20)),
         AnimatedOpacity(
           opacity: showMiniGame ? 1.0 : 0.0, // 서서히 나타나기
           duration: const Duration(milliseconds: 1000), // 애니메이션 지속 시간
@@ -89,39 +84,45 @@ class _MatchingPageState extends State<MatchingPage> {
   }
 
   Widget after() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        Text("김순자", style: TextStyle(fontSize: 30)),
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: EdgeInsets.all(0),
+                backgroundColor: Colors.green,
+              ),
+              onPressed: () {
+                print("ㄱㄱㄱ");
+              },
+              child: Icon(Icons.check),
             ),
-            padding: EdgeInsets.all(0),
-            backgroundColor: Colors.green,
-          ),
-          onPressed: () {
-            print("ㄱㄱㄱ");
-          },
-          child: Icon(Icons.check),
-        ),
-        SizedBox(width: 50),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+            SizedBox(width: 50),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: EdgeInsets.all(0),
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () {
+                if (mounted) {
+                  setState(() {
+                    match = false;
+                  });
+                }
+              },
+              child: Icon(Icons.clear),
             ),
-            padding: EdgeInsets.all(0),
-            backgroundColor: Colors.red,
-          ),
-          onPressed: () {
-            if (mounted) {
-              setState(() {
-                match = false;
-              });
-            }
-          },
-          child: Icon(Icons.clear),
+          ],
         ),
       ],
     );
@@ -129,41 +130,41 @@ class _MatchingPageState extends State<MatchingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    return AnimatedPadding(
+      padding: EdgeInsets.only(top: isLoading ? screenHeight/10 : screenHeight/4),
+      duration: Duration(seconds: 1),
+      curve: Curves.easeInOut,
       child: Column(
         children: [
-          AnimatedPadding(
-            padding: EdgeInsets.only(top: isLoading ? 100 : 250),
-            duration: Duration(seconds: 1),
-            curve: Curves.easeInOut,
-            child: Stack(
-              children: [
-                CircleAvatar(
+          Stack(
+            children: [
+              CircleAvatar(
+                radius: 90,
+                backgroundColor: Color.fromARGB(255, 209, 209, 209),
+              ),
+              AnimatedOpacity(
+                opacity: match ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                child: CircleAvatar(
                   radius: 90,
-                  backgroundColor: Color.fromARGB(255, 209, 209, 209),
+                  backgroundImage: _mySelf,
+                  backgroundColor: Colors.transparent,
                 ),
-                AnimatedOpacity(
-                  opacity: match ? 0.0 : 1.0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  child: CircleAvatar(
-                    radius: 90,
-                    backgroundImage: _mySelf,
-                    backgroundColor: Colors.transparent,
-                  ),
+              ),
+              AnimatedOpacity(
+                opacity: match ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 500),
+                curve: Curves.easeInOut,
+                child: CircleAvatar(
+                  radius: 90,
+                  backgroundImage: _opponent,
+                  backgroundColor: Colors.transparent,
                 ),
-                AnimatedOpacity(
-                  opacity: match ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                  child: CircleAvatar(
-                    radius: 90,
-                    backgroundImage: _opponent,
-                    backgroundColor: Colors.transparent,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           SizedBox(height: 20),
           if (!isLoading && !match) before(),

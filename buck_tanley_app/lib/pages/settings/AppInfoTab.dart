@@ -5,6 +5,9 @@ class AppInfoTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("앱 정보"));
+    return Scaffold(
+      appBar: AppBar(title: Text("앱 정보")),
+      body: Center(child: Text("앱 정보")),
+    );
   }
 }

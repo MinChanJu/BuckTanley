@@ -11,7 +11,7 @@ class Freind {
     required this.status,
   });
 
-  // JSON -> 객체 변환 (Spring API 응답을 받았을 때)
+  // JSON -> 객체 변환
   factory Freind.fromJson(Map<String, dynamic> json) {
     return Freind(
       image: json['image'],
@@ -21,7 +21,7 @@ class Freind {
     );
   }
 
-  // 객체 -> JSON 변환 (Spring API에 요청 보낼 때)
+  // 객체 -> JSON 변환
   Map<String, dynamic> toJson() {
     return {
       'image': image,

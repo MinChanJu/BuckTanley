@@ -1,7 +1,7 @@
 class Message {
   final String message;
   final int type;
-  final String time;
+  final DateTime time;
 
   Message({
     required this.message,
@@ -9,7 +9,7 @@ class Message {
     required this.time,
   });
 
-  // JSON -> 객체 변환 (Spring API 응답을 받았을 때)
+  // JSON -> 객체 변환
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
       message: json['message'],
@@ -18,7 +18,7 @@ class Message {
     );
   }
 
-  // 객체 -> JSON 변환 (Spring API에 요청 보낼 때)
+  // 객체 -> JSON 변환
   Map<String, dynamic> toJson() {
     return {
       'message': message,

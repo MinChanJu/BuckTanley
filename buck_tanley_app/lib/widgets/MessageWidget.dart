@@ -7,20 +7,22 @@ class MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    String time = "${message.time.hour.toString().padLeft(2, '0')}:${message.time.minute.toString().padLeft(2, '0')}";
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         mainAxisAlignment: message.type == 1 ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          if (message.type == 1) Text(message.time),
+          if (message.type == 1) Text(time),
           if (message.type == 1) SizedBox(width: 10,),
           Container(
-            width: 400,
+            constraints: BoxConstraints(maxWidth: screenWidth*0.7),
             padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
             decoration: BoxDecoration(
-              border: Border.all(),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(10),
               color: message.type == 1 ? Colors.amber : Colors.grey,
             ),
             child: Text(
@@ -31,7 +33,7 @@ class MessageWidget extends StatelessWidget {
             ),
           ),
           if (message.type == 2) SizedBox(width: 10,),
-          if (message.type == 2) Text(message.time),
+          if (message.type == 2) Text(time),
         ],
       ),
     );

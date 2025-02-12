@@ -5,6 +5,9 @@ class NotificationTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("알림 설정"));
+    return Scaffold(
+      appBar: AppBar(title: Text("알림 설정")),
+      body: Center(child: Text("알림 설정")),
+    );
   }
 }

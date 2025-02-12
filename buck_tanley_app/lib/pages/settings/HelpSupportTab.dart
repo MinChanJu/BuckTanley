@@ -5,6 +5,9 @@ class HelpSupportTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("도움말 및 고객지원"));
+    return Scaffold(
+      appBar: AppBar(title: Text("도움말 및 고객지원")),
+      body: Center(child: Text("도움말 및 고객지원")),
+    );
   }
 }
