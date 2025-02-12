@@ -23,22 +23,22 @@ public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "text")
     private String userId;
 
-    @Column(name = "user_pw")
+    @Column(name = "user_pw", columnDefinition = "text")
     private String userPw;
 
-    @Column(name = "name")
+    @Column(name = "name", columnDefinition = "text")
     private String name;
 
-    @Column(name = "phone")
+    @Column(name = "phone", columnDefinition = "text")
     private String phone;
 
-    @Column(name = "email")
+    @Column(name = "email", columnDefinition = "text")
     private String email;
 
-    @Column(name = "image")
+    @Column(name = "image", columnDefinition = "text")
     private String image;
 
     @Column(name = "age")
@@ -47,7 +47,7 @@ public class User {
     @Column(name = "gender")
     private Boolean gender;
 
-    @Column(name = "introduction")
+    @Column(name = "introduction", columnDefinition = "text")
     private String introduction;
 
     @Column(name = "status")
