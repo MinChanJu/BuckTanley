@@ -23,17 +23,17 @@ public class Message {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id1")
+    @Column(name = "user_id1", columnDefinition = "text")
     private String userId1;
 
-    @Column(name = "user_id2")
+    @Column(name = "user_id2", columnDefinition = "text")
     private String userId2;
 
-    @Column(name = "message")
-    private Short message;
+    @Column(name = "message", columnDefinition = "text")
+    private String message;
 
-    @Column(name = "image")
-    private Short image;
+    @Column(name = "image", columnDefinition = "text")
+    private String image;
 
     @Column(name = "created_at")
     private ZonedDateTime createdAt;

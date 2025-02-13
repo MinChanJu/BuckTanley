@@ -19,15 +19,15 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "matchs")
+@Table(name = "matches")
 public class Match {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id1")
+    @Column(name = "user_id1", columnDefinition = "text")
     private String userId1;
 
-    @Column(name = "user_id2")
+    @Column(name = "user_id2", columnDefinition = "text")
     private String userId2;
 
     @Column(name = "status")
