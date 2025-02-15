@@ -1,4 +1,5 @@
 import 'package:buck_tanley_app/models/Chat.dart';
+import 'package:buck_tanley_app/pages/ChattingPage.dart';
 import 'package:buck_tanley_app/widgets/ChatWidget.dart';
 import 'package:flutter/material.dart';
 
@@ -44,11 +45,27 @@ class _ChatListPageState extends State<ChatListPage> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             width: screenWidth,
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey, width: 1))
-            ),
+            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey, width: 1))),
             child: Text("채팅", style: TextStyle(fontSize: 25)),
           ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChattingPage(sender: "s", receiver: "r")),
+            );
+          },
+          child: Text("보내기"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChattingPage(sender: "r", receiver: "s")),
+            );
+          },
+          child: Text("받기"),
         ),
         Expanded(
           child: ListView.builder(

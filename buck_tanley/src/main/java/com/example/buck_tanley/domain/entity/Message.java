@@ -23,11 +23,11 @@ public class Message {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id1", columnDefinition = "text")
-    private String userId1;
+    @Column(name = "sender", columnDefinition = "text")
+    private String sender;
 
-    @Column(name = "user_id2", columnDefinition = "text")
-    private String userId2;
+    @Column(name = "receiver", columnDefinition = "text")
+    private String receiver;
 
     @Column(name = "message", columnDefinition = "text")
     private String message;
