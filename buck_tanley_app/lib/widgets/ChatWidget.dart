@@ -22,7 +22,7 @@ class ChatWidget extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ChattingPage()),
+            MaterialPageRoute(builder: (context) => ChattingPage(sender: "s", receiver: chat.name,)),
           );
         },
         child: Row(
