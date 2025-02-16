@@ -1,4 +1,5 @@
 import 'package:buck_tanley_app/models/Setting.dart';
+import 'package:buck_tanley_app/pages/settings/LogoutTab.dart';
 import 'package:buck_tanley_app/widgets/AdBanner.dart';
 import 'package:buck_tanley_app/pages/settings/MyPageTab.dart';
 import 'package:buck_tanley_app/pages/settings/NotificationTab.dart';
@@ -21,6 +22,7 @@ class _SettingPageState extends State<SettingPage> {
     Setting(title: "보안", icon: Icons.lock, page: const SecurityTab()), // 보안 및 로그인 - 비밀번호 변경 / 회원 탈퇴
     Setting(title: "도움말 및 고객지원", icon: Icons.help, page: const HelpSupportTab()), // 도움말 및 고객지원 - FAQ / 약관 안내
     Setting(title: "앱 정보", icon: Icons.info, page: const AppInfoTab()), // 앱 버전 정보 제공
+    Setting(title: "로그아웃", icon: Icons.logout, page: const LogoutTab()), // 로그아웃
   ];
 
   @override

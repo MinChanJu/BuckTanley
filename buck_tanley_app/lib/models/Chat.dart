@@ -1,13 +1,13 @@
 class Chat {
   final String image;
   final String name;
-  final String last;
+  final String userId;
   final String time;
 
   Chat({
     required this.image,
     required this.name,
-    required this.last,
+    required this.userId,
     required this.time,
   });
 
@@ -16,7 +16,7 @@ class Chat {
     return Chat(
       image: json['image'],
       name: json['name'],
-      last: json['last'],
+      userId: json['userId'],
       time: json['time'],
     );
   }
@@ -26,7 +26,7 @@ class Chat {
     return {
       'image': image,
       'name': name,
-      'last': last,
+      'userId': userId,
       'time': time,
     };
   }

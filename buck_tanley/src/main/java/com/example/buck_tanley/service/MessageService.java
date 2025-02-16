@@ -15,24 +15,20 @@ public class MessageService {
     
     @Autowired private MessageRepository messageRepository;
 
-    public List<Message> GetAllMessagesByUserId1(String userId1) {
-        return messageRepository.findAllByUserId1(userId1);
+    public List<Message> getAllMessagesByUserId(String userId) {
+        return messageRepository.findAllByUserId(userId);
     }
 
-    public List<Message> GetAllMessagesByUserId2(String userId2) {
-        return messageRepository.findAllByUserId2(userId2);
-    }
-
-    public Message CreaterMessage(Message message) {
+    public Message createMessage(Message message) {
         return messageRepository.save(message);
     }
 
-    public Message UpdateMessage(Message message) {
+    public Message updateMessage(Message message) {
         if (messageRepository.existsById(message.getId())) throw new CustomException(ErrorCode.MESSAGE_NOT_FOUND);
         return messageRepository.save(message);
     }
 
-    public void DeleteMessage(Long id) {
+    public void deleteMessage(Long id) {
         if (id == null) throw new CustomException(ErrorCode.MESSAGE_NOT_FOUND);
         if (messageRepository.existsById(id)) throw new CustomException(ErrorCode.MESSAGE_NOT_FOUND);
         messageRepository.deleteById(id);

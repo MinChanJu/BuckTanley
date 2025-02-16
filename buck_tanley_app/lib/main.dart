@@ -1,5 +1,6 @@
 import 'package:buck_tanley_app/pages/LoginPage.dart';
 import 'package:buck_tanley_app/pages/PageRouter.dart';
+import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
 import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ void main() async {
     app_provider.MultiProvider(
       providers: [
         app_provider.ChangeNotifierProvider(create: (_) => userProvider),
+        app_provider.ChangeNotifierProvider(create: (_) => MessageProvider()),
       ],
       child: const MyApp(),
     ),
