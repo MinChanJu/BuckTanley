@@ -1,36 +1,40 @@
 class Message {
-  final String message;
+  final int? id;
   final String sender;
   final String receiver;
-  final DateTime time;
+  final String content;
+  final DateTime createdAt;
 
   Message({
-    required this.message,
+    required this.id,
     required this.sender,
     required this.receiver,
-    required this.time,
+    required this.content,
+    required this.createdAt,
   });
 
   // JSON -> 객체 변환
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-      message: json['message'],
+      id: json['id'],
       sender: json['sender'],
       receiver: json['receiver'],
-      time: DateTime.parse(json['time']),
+      content: json['content'],
+      createdAt: DateTime.parse(json['createdAt']),
     );
   }
 
   // 객체 -> JSON 변환
   Map<String, dynamic> toJson() {
-    String formatted = time.toIso8601String();
-    String offset = time.timeZoneOffset.inHours.toString().padLeft(2, '0');
-    String zoneSuffix = time.timeZoneOffset.isNegative ? '-$offset:00' : '+$offset:00';
+    String formatted = createdAt.toIso8601String();
+    String offset = createdAt.timeZoneOffset.inHours.toString().padLeft(2, '0');
+    String zoneSuffix = createdAt.timeZoneOffset.isNegative ? '-$offset:00' : '+$offset:00';
     return {
-      'message': message,
+      'id': id,
       'sender': sender,
       'receiver': receiver,
-      'time': '$formatted$zoneSuffix',
+      'content': content,
+      'createdAt': '$formatted$zoneSuffix',
     };
   }
 }

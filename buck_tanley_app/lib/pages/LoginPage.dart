@@ -1,14 +1,35 @@
+import 'dart:convert';
+
+import 'package:buck_tanley_app/models/Message.dart';
 import 'package:buck_tanley_app/pages/PageRouter.dart';
 import 'package:buck_tanley_app/pages/RegisterPage.dart';
+import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
+import 'package:buck_tanley_app/services/WebSocketService.dart';
+import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/gestures.dart';
 import 'package:buck_tanley_app/widgets/LogoAppBar.dart';
 import 'package:buck_tanley_app/widgets/AdBanner.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _pwController = TextEditingController();
+
+  @override
+  void dispose() {
+    _idController.dispose();
+    _pwController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +59,13 @@ class LoginPage extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const TextField(
-                      decoration: InputDecoration(labelText: 'ID'),
+                    TextField(
+                      controller: _idController,
+                      decoration: const InputDecoration(labelText: 'ID'),
                     ),
                     const SizedBox(height: 10),
-                    const TextField(
+                    TextField(
+                      controller: _pwController,
                       decoration: InputDecoration(labelText: 'PassWord'),
                       obscureText: true,
                     ),
@@ -51,7 +74,27 @@ class LoginPage extends StatelessWidget {
                       alignment: Alignment.centerRight,
                       child: ElevatedButton(
                         onPressed: () {
-                          app_provider.Provider.of<UserProvider>(context, listen: false).login("sgndsflonlas");
+                          app_provider.Provider.of<UserProvider>(context, listen: false).login(_idController.text);
+                          final wsService = WebSocketService.getInstance(_idController.text);
+                          final messageProvider = app_provider.Provider.of<MessageProvider>(context, listen: false);
+                          messageProvider.loadMessages(_idController.text);
+
+                          // 새로운 메시지 수신 시 실시간 추가
+                          wsService.messages.listen((data) {
+                            try {
+                              final message = Message.fromJson(jsonDecode(data));
+                              String roomId = Room().getRoomId(message.sender, message.receiver);
+                              messageProvider.addMessage(roomId, message);
+                              print('📨 메시지 수신 및 저장 (방: $roomId): ${message.content}');
+                            } catch (e) {
+                              print('❌ 메시지 파싱 실패: $e');
+                            }
+                          }, onDone: () {
+                            print('🔌 WebSocket 연결 종료');
+                          }, onError: (error) {
+                            print('❌ WebSocket 오류: $error');
+                          });
+
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => PageRouter()),

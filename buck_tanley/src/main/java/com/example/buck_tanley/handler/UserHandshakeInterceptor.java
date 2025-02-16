@@ -1,4 +1,4 @@
-package com.example.buck_tanley.config;
+package com.example.buck_tanley.handler;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -18,7 +18,6 @@ public class UserHandshakeInterceptor implements HandshakeInterceptor {
         if (query != null && query.contains("userId=")) {
             String userId = query.split("userId=")[1].split("&")[0];
             attributes.put("userId", userId);
-            System.out.println("🔍 HandshakeInterceptor: userId=" + userId);
         }
         return true;
     }

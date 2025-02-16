@@ -1,3 +1,4 @@
+import 'package:buck_tanley_app/services/WebSocketService.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -20,6 +21,9 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
+    final wsService = WebSocketService.getInstance(_token ?? "");
+    wsService.disconnect();
+
     _token = null;
     await _storage.delete(key: 'token');
     notifyListeners();

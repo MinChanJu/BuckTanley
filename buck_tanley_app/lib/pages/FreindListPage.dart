@@ -1,5 +1,7 @@
 import 'package:buck_tanley_app/models/Freind.dart';
 import 'package:buck_tanley_app/widgets/FreindWidget.dart';
+import 'package:buck_tanley_app/provider/UserProvider.dart';
+import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
 class FreindListPage extends StatefulWidget {
@@ -11,7 +13,7 @@ class FreindListPage extends StatefulWidget {
 
 class _FreindListPageState extends State<FreindListPage> {
   List<Freind> freinds = [
-    Freind(image: "", name: "김민수", message: "안녕ㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴㄴ", status: 2),
+    Freind(image: "", name: "김민수", message: "안녕", status: 2),
     Freind(image: "", name: "이영희", message: "해", status: 1),
     Freind(image: "", name: "박철수", message: "어쩔", status: 0),
     Freind(image: "", name: "김이박", message: "뭐함", status: 3),
@@ -38,6 +40,7 @@ class _FreindListPageState extends State<FreindListPage> {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+    String? token = app_provider.Provider.of<UserProvider>(context, listen: false).token;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -45,9 +48,7 @@ class _FreindListPageState extends State<FreindListPage> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             width: screenWidth,
-            decoration: BoxDecoration(
-              border: Border(bottom: BorderSide(color: Colors.grey, width: 1))
-            ),
+            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey, width: 1))),
             child: Text("친구 목록", style: TextStyle(fontSize: 25)),
           ),
         ),
@@ -61,7 +62,7 @@ class _FreindListPageState extends State<FreindListPage> {
               ),
               SizedBox(width: 20),
               Text(
-                "벅텐리",
+                token ?? "없음",
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w600,

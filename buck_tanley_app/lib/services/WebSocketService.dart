@@ -1,17 +1,17 @@
 import 'dart:convert';
 import 'package:buck_tanley_app/models/Message.dart';
+import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/html.dart';
 
 class WebSocketService {
   // 사용자별 WebSocket 인스턴스를 관리할 싱글톤 Map
   static final Map<String, WebSocketService> _instances = {};
-
   late WebSocketChannel _channel;
   late Stream<dynamic> _broadcastStream;
   final String userId;
 
-  // private 생성자 (생성 시 WebSocket 연결)
+  // private 생성자
   WebSocketService._create(this.userId) {
     _connect();
   }
@@ -36,13 +36,13 @@ class WebSocketService {
   void sendMessage(Message message) {
     final jsonString = jsonEncode(message.toJson());
     _channel.sink.add(jsonString);
-    print('💬 메시지 전송 ($userId): $jsonString');
+    print('💬 메시지 전송 ($userId -> 방: ${Room().getRoomId(message.sender, message.receiver)}): $jsonString');
   }
 
-  // 메시지 수신 스트림
+  // WebSocket 메시지 스트림
   Stream<dynamic> get messages => _broadcastStream;
 
-  // WebSocket 연결 해제 및 인스턴스 제거
+  // WebSocket 연결 해제
   void disconnect() {
     _channel.sink.close();
     _instances.remove(userId);

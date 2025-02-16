@@ -9,7 +9,7 @@ class MessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    String time = "${message.time.toLocal().hour.toString().padLeft(2, '0')}:${message.time.toLocal().minute.toString().padLeft(2, '0')}";
+    String time = "${message.createdAt.toLocal().hour.toString().padLeft(2, '0')}:${message.createdAt.toLocal().minute.toString().padLeft(2, '0')}";
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -27,7 +27,7 @@ class MessageWidget extends StatelessWidget {
               color: message.sender == userId ? Colors.amber : Colors.grey,
             ),
             child: Text(
-              message.message,
+              message.content,
               style: TextStyle(
                 fontSize: 20,
               ),
