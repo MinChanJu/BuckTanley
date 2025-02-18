@@ -17,31 +17,37 @@ public class MatchService {
     @Autowired
     private MatchRepository matchRepository;
 
-    public List<Match> GetAllMatchByUserId(String userId) {
-        List<Match> matchs1 = matchRepository.findAllByUserId1(userId);
-        List<Match> matchs2 = matchRepository.findAllByUserId2(userId);
+    public List<Match> getAllMatchByUserId(String userId) {
+        List<Match> matches1 = matchRepository.findAllByUserId1(userId);
+        List<Match> matches2 = matchRepository.findAllByUserId2(userId);
 
-        List<Match> combinedMatches = new ArrayList<>(matchs1);
-        combinedMatches.addAll(matchs2);
+        List<Match> combinedMatches = new ArrayList<>(matches1);
+        combinedMatches.addAll(matches2);
         return combinedMatches;
     }
 
-    public Match CreateMatch(Match match) {
-        if (matchRepository.existsByUserId1AndUserId2(match.getUserId1(), match.getUserId2()) ||
-                matchRepository.existsByUserId1AndUserId2(match.getUserId2(), match.getUserId1())) {
+    public Match createMatch(String userId1, String userId2) {
+        if (matchRepository.existsByUserId1AndUserId2(userId1, userId2) ||
+                matchRepository.existsByUserId1AndUserId2(userId2, userId1)) {
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         }
+
+        Match match = new Match();
+        match.setUserId1(userId1);
+        match.setUserId2(userId2);
+        match.setStatus((short) 0); // 매칭 요청
         return matchRepository.save(match);
     }
 
-    public Match UpdateMatch(Match match) {
-        if (matchRepository.existsById(match.getId())) throw new CustomException(ErrorCode.MATCH_NOT_FOUND);
+    public Match updateMatch(Long matchId) {
+        Match match = matchRepository.findById(matchId).orElseThrow(() -> new CustomException(ErrorCode.MATCH_NOT_FOUND));
+        match.setStatus((short) 1); // 매칭 수락
         return matchRepository.save(match);
     }
 
-    public void DeleteMatch(Long id) {
-        if (id == null) throw new CustomException(ErrorCode.MATCH_NOT_FOUND);
-        if (matchRepository.existsById(id)) throw new CustomException(ErrorCode.MATCH_NOT_FOUND);
-        matchRepository.deleteById(id);
+    public void deleteMatch(Long matchId) {
+        if (matchId == null) throw new CustomException(ErrorCode.MATCH_NOT_FOUND);
+        if (!matchRepository.existsById(matchId)) throw new CustomException(ErrorCode.MATCH_NOT_FOUND);
+        matchRepository.deleteById(matchId);
     }
 }
