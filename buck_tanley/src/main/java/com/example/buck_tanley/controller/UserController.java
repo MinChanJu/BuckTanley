@@ -7,15 +7,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.buck_tanley.domain.dto.ApiResponse;
+import com.example.buck_tanley.domain.dto.LoginDTO;
 import com.example.buck_tanley.domain.entity.User;
 import com.example.buck_tanley.exception.CustomException;
 import com.example.buck_tanley.exception.ErrorCode;
 import com.example.buck_tanley.service.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -32,8 +31,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<User>> loginUser(@RequestBody String userId, @RequestBody String userPw) {
-        Optional<User> userOptional = userService.authenticalUser(userId, userPw);
+    public ResponseEntity<ApiResponse<User>> loginUser(@RequestBody LoginDTO loginDTO) {
+        Optional<User> userOptional = userService.authenticalUser(loginDTO.getUserId(), loginDTO.getUserPw());
         if (userOptional.isEmpty()){
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
         }
