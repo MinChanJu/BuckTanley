@@ -19,8 +19,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "matches")
-public class Match {
+@Table(name = "friends")
+public class Friend {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -29,6 +29,9 @@ public class Match {
 
     @Column(name = "user_id2", columnDefinition = "text")
     private String userId2;
+
+    @Column(name = "status")
+    private Short status;
 
     @Column(name = "created_at")
     private ZonedDateTime createdAt;
