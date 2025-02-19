@@ -26,7 +26,7 @@ class MessageProvider with ChangeNotifier {
 
         if (messages.data != null) {
           for (Message message in messages.data!) {
-            String roomId = Room().getRoomId(message.sender, message.receiver);
+            String roomId = Room.getRoomId(message.sender, message.receiver);
             _roomMessages.putIfAbsent(roomId, () => []).add(message);
           }
         }

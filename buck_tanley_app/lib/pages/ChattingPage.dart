@@ -1,8 +1,9 @@
 // import 'dart:convert';
 
 import 'package:buck_tanley_app/models/Message.dart';
-import 'package:buck_tanley_app/services/WebSocketService.dart';
+import 'package:buck_tanley_app/services/ChatWebSocketService.dart';
 import 'package:buck_tanley_app/utils/Room.dart';
+import 'package:buck_tanley_app/utils/Time.dart';
 import 'package:buck_tanley_app/widgets/MessageWidget.dart';
 import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:provider/provider.dart' as app_provider;
@@ -20,17 +21,17 @@ class ChattingPage extends StatefulWidget {
 class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
-  late String roomId;
-  late WebSocketService wsService;
+  late ChatWebSocketService wsService;
   late AssetImage _opponent;
+  late String roomId;
 
   @override
   void initState() {
     super.initState();
     _opponent = AssetImage('assets/images/dinosaur1.png');
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    wsService = WebSocketService.getInstance(widget.sender);
-    roomId = Room().getRoomId(widget.sender, widget.receiver);
+    wsService = ChatWebSocketService.getInstance(widget.sender);
+    roomId = Room.getRoomId(widget.sender, widget.receiver);
   }
 
   @override
@@ -64,6 +65,25 @@ class _ChattingPageState extends State<ChattingPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
+  Widget buildDate(DateTime time) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            Time.getFormatDate(time),
+            style: const TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,9 +113,10 @@ class _ChattingPageState extends State<ChattingPage> {
                 return Column(
                   crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                   children: [
+                    if (index == 0) buildDate(messages[index].createdAt),
                     MessageWidget(message: messages[index], userId: widget.sender),
                     if (index < messages.length - 1)
-                      if (_shouldShowDateDivider(messages[index], messages[index + 1])) _buildDateDivider(messages[index + 1].createdAt),
+                      if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
                   ],
                 );
               },
@@ -123,31 +144,6 @@ class _ChattingPageState extends State<ChattingPage> {
               child: const Icon(Icons.send),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  bool _shouldShowDateDivider(Message cur, Message next) {
-    final curTime = cur.createdAt;
-    final nextTime = next.createdAt;
-    return curTime.year != nextTime.year || curTime.month != nextTime.month || curTime.day != nextTime.day;
-  }
-
-  Widget _buildDateDivider(DateTime date) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade300,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            "${date.year}/${date.month}/${date.day}",
-            style: const TextStyle(fontSize: 16, color: Colors.black54),
-          ),
         ),
       ),
     );

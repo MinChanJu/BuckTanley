@@ -13,7 +13,7 @@ class ChatWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String? token = app_provider.Provider.of<UserProvider>(context, listen: false).token;
-    String roomId = Room().getRoomId(token ?? "", chat.userId);
+    String roomId = Room.getRoomId(token ?? "", chat.userId);
     String last = app_provider.Provider.of<MessageProvider>(context, listen: true).getlastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
