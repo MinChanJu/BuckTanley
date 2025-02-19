@@ -29,6 +29,7 @@ dependencies {
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.3'
 	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
 	runtimeOnly 'org.postgresql:postgresql'
 

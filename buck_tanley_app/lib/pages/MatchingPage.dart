@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:buck_tanley_app/provider/UserProvider.dart';
+import 'package:buck_tanley_app/services/MatchWebSocketService.dart';
 import 'package:buck_tanley_app/widgets/MiniGameWidget.dart';
+import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
 class MatchingPage extends StatefulWidget {
@@ -14,6 +19,7 @@ class _MatchingPageState extends State<MatchingPage> {
   bool showMiniGame = false;
   bool match = false;
   late AssetImage _mySelf, _opponent;
+  String partner = "";
 
   @override
   void initState() {
@@ -22,8 +28,23 @@ class _MatchingPageState extends State<MatchingPage> {
     _opponent = AssetImage('assets/images/dinosaur1.png');
   }
 
-  void matching() {
-    if (mounted) {
+  void matching(String? userId) {
+    if (mounted && userId != null) {
+      final matchWebSocketService = MatchWebSocketService.getInstance(userId);
+      matchWebSocketService.messages.listen((data) {
+        try {
+          final matchJson = jsonDecode(data);
+          setState(() {
+            isLoading = false;
+            showMiniGame = false;
+            match = true;
+            partner = matchJson["partner"];
+          });
+          matchWebSocketService.disconnect();
+        } catch (e) {
+          print('❌ 메시지 파싱 실패: $e');
+        }
+      });
       setState(() {
         isLoading = true;
       });
@@ -33,16 +54,6 @@ class _MatchingPageState extends State<MatchingPage> {
       if (mounted) {
         setState(() {
           showMiniGame = true;
-        });
-      }
-    });
-
-    Future.delayed(Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-          showMiniGame = false;
-          match = true;
         });
       }
     });
@@ -61,7 +72,9 @@ class _MatchingPageState extends State<MatchingPage> {
           horizontal: 30,
         ),
       ),
-      onPressed: matching,
+      onPressed: () {
+        matching(app_provider.Provider.of<UserProvider>(context, listen: false).token);
+      },
       child: Text(
         '매칭',
         style: TextStyle(fontSize: 20),
@@ -86,7 +99,7 @@ class _MatchingPageState extends State<MatchingPage> {
   Widget after() {
     return Column(
       children: [
-        Text("김순자", style: TextStyle(fontSize: 30)),
+        Text(partner, style: TextStyle(fontSize: 30)),
         SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -133,7 +146,7 @@ class _MatchingPageState extends State<MatchingPage> {
     double screenHeight = MediaQuery.of(context).size.height;
 
     return AnimatedPadding(
-      padding: EdgeInsets.only(top: isLoading ? screenHeight/10 : screenHeight/4),
+      padding: EdgeInsets.only(top: isLoading ? screenHeight / 10 : screenHeight / 4),
       duration: Duration(seconds: 1),
       curve: Curves.easeInOut,
       child: Column(

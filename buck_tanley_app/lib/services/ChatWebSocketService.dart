@@ -4,21 +4,21 @@ import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/html.dart';
 
-class WebSocketService {
+class ChatWebSocketService {
   // 사용자별 WebSocket 인스턴스를 관리할 싱글톤 Map
-  static final Map<String, WebSocketService> _instances = {};
+  static final Map<String, ChatWebSocketService> _instances = {};
   late WebSocketChannel _channel;
   late Stream<dynamic> _broadcastStream;
   final String userId;
 
   // private 생성자
-  WebSocketService._create(this.userId) {
+  ChatWebSocketService._create(this.userId) {
     _connect();
   }
 
   // 싱글톤 인스턴스 반환
-  static WebSocketService getInstance(String userId) {
-    return _instances.putIfAbsent(userId, () => WebSocketService._create(userId));
+  static ChatWebSocketService getInstance(String userId) {
+    return _instances.putIfAbsent(userId, () => ChatWebSocketService._create(userId));
   }
 
   // WebSocket 연결
@@ -26,9 +26,9 @@ class WebSocketService {
     try {
       _channel = HtmlWebSocketChannel.connect(Uri.parse('ws://localhost:8080/chat?userId=$userId'));
       _broadcastStream = _channel.stream.asBroadcastStream();
-      print('🔌 WebSocket 연결 성공: $userId');
+      print('🔌 ChatWebSocket 연결 성공: $userId');
     } catch (e) {
-      print('🚨 WebSocket 연결 실패: $e');
+      print('🚨 ChatWebSocket 연결 실패: $e');
     }
   }
 
@@ -36,7 +36,7 @@ class WebSocketService {
   void sendMessage(Message message) {
     final jsonString = jsonEncode(message.toJson());
     _channel.sink.add(jsonString);
-    print('💬 메시지 전송 ($userId -> 방: ${Room().getRoomId(message.sender, message.receiver)}): $jsonString');
+    print('💬 메시지 전송 ($userId -> 방: ${Room.getRoomId(message.sender, message.receiver)}): $jsonString');
   }
 
   // WebSocket 메시지 스트림
@@ -46,6 +46,6 @@ class WebSocketService {
   void disconnect() {
     _channel.sink.close();
     _instances.remove(userId);
-    print('🔌 WebSocket 연결 해제: $userId');
+    print('🔌 ChatWebSocket 연결 해제: $userId');
   }
 }

@@ -1,4 +1,5 @@
 import 'package:buck_tanley_app/models/Message.dart';
+import 'package:buck_tanley_app/utils/Time.dart';
 import 'package:flutter/material.dart';
 
 class MessageWidget extends StatelessWidget {
@@ -9,7 +10,7 @@ class MessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    String time = "${message.createdAt.toLocal().hour.toString().padLeft(2, '0')}:${message.createdAt.toLocal().minute.toString().padLeft(2, '0')}";
+    String time = Time.getFormatTime(message.createdAt);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -18,9 +19,9 @@ class MessageWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (message.sender == userId) Text(time),
-          if (message.sender == userId) SizedBox(width: 10,),
+          if (message.sender == userId) SizedBox(width: 10),
           Container(
-            constraints: BoxConstraints(maxWidth: screenWidth*0.7),
+            constraints: BoxConstraints(maxWidth: screenWidth * 0.7),
             padding: EdgeInsets.symmetric(vertical: 5, horizontal: 20),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
@@ -33,7 +34,7 @@ class MessageWidget extends StatelessWidget {
               ),
             ),
           ),
-          if (message.sender != userId) SizedBox(width: 10,),
+          if (message.sender != userId) SizedBox(width: 10),
           if (message.sender != userId) Text(time),
         ],
       ),
