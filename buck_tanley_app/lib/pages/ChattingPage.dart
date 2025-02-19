@@ -1,9 +1,18 @@
+// import 'dart:convert';
+
 import 'package:buck_tanley_app/models/Message.dart';
+import 'package:buck_tanley_app/services/ChatWebSocketService.dart';
+import 'package:buck_tanley_app/utils/Room.dart';
+import 'package:buck_tanley_app/utils/Time.dart';
 import 'package:buck_tanley_app/widgets/MessageWidget.dart';
+import 'package:buck_tanley_app/provider/MessageProvider.dart';
+import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
 class ChattingPage extends StatefulWidget {
-  const ChattingPage({super.key});
+  final String sender;
+  final String receiver;
+  const ChattingPage({super.key, required this.sender, required this.receiver});
 
   @override
   State<ChattingPage> createState() => _ChattingPageState();
@@ -12,48 +21,17 @@ class ChattingPage extends StatefulWidget {
 class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
+  late ChatWebSocketService wsService;
   late AssetImage _opponent;
-  List<Message> messages = [
-    Message(message: "안녕", type: 2, time: DateTime.parse("2025-02-09T14:30:00.123+09:00")),
-    Message(message: "뭐함", type: 2, time: DateTime.parse("2025-02-09T14:31:00.123+09:00")),
-    Message(message: "ㅇㅉ", type: 1, time: DateTime.parse("2025-02-09T14:32:00.123+09:00")),
-    Message(message: "조용히 해", type: 2, time: DateTime.parse("2025-02-09T14:30:00.123+09:00")),
-    Message(message: "놀고 싶다", type: 2, time: DateTime.parse("2025-02-10T14:30:00.123+09:00")),
-    Message(message: "프로젝트나 해", type: 1, time: DateTime.parse("2025-02-10T14:30:00.123+09:00")),
-    Message(message: "하는 중", type: 2, time: DateTime.parse("2025-02-10T14:30:00.123+09:00")),
-    Message(message: "쌉쳐", type: 2, time: DateTime.parse("2025-02-10T14:30:00.123+09:00")),
-    Message(message: "왜 ㅈㄹ임", type: 2, time: DateTime.parse("2025-02-10T14:30:00.123+09:00")),
-    Message(message: "? 니가 ㅈㄹ 하는데?", type: 1, time: DateTime.parse("2025-02-10T14:30:00.123+09:00")),
-    Message(message: "이 새기 뭐지", type: 1, time: DateTime.parse("2025-02-11T14:30:00.123+09:00")),
-    Message(message: "정신 나감?", type: 1, time: DateTime.parse("2025-02-11T14:30:00.123+09:00")),
-    Message(message: "ㅇㅇㅇ", type: 2, time: DateTime.parse("2025-02-11T14:30:00.123+09:00")),
-    Message(message: "아무것도 하기 싫어서", type: 2, time: DateTime.parse("2025-02-11T14:30:00.123+09:00")),
-    Message(message: "그럼 쳐자", type: 1, time: DateTime.parse("2025-02-11T14:30:00.123+09:00")),
-    Message(message: "그것도 시름", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "뭐 어쩌라고 ㅅㅂ", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "왜 욕행..ㅠㅠ", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "ㄲㅈ", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "뭐라도 채워야지", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "프로젝트에서 플루터 내용 잘 확인하고 테스트 해봐 이 페이지는 채팅 페이지야", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "ㅇㅉ", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "ㄷㅊ", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "넹", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "내가 지금 뭐하는 걸까 이런 생각이 드네 이 글을 쓰는 것도 뭐하는 짓인가 어쩌라고 테스트는 해야할거 아니야 긴문장도!!", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "그러니까 할 수 밖에 없지", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "ㅇㅇㅇ", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "나도 해봄", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "뭐래 하기 싫은데 아무말이나 막 적어야 하니까 그냥 하는 거지 원래였으면 안함 ㅅㄱ", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "굿 잘되겠지", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "그러겠지", type: 2, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "오케이 확인", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-    Message(message: "끝", type: 1, time: DateTime.parse("2025-02-12T14:30:00.123+09:00")),
-  ];
+  late String roomId;
 
   @override
   void initState() {
     super.initState();
     _opponent = AssetImage('assets/images/dinosaur1.png');
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    wsService = ChatWebSocketService.getInstance(widget.sender);
+    roomId = Room.getRoomId(widget.sender, widget.receiver);
   }
 
   @override
@@ -64,31 +42,46 @@ class _ChattingPageState extends State<ChattingPage> {
   }
 
   void _scrollToBottom() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: Duration(milliseconds: 100),
-      curve: Curves.easeOut,
-    );
-
-    Future.delayed(Duration(milliseconds: 100), () {
+    if (_scrollController.hasClients) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 100),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
-    });
+    }
   }
 
   void _sendMessage() {
-    if (_textController.text == "") return;
+    final text = _textController.text.trim();
+    _textController.clear();
+    if (text.isEmpty) return;
 
-    print("입력된 값: ${_textController.text}");
-    setState(() {
-      messages.add(Message(message: _textController.text, type: 1, time: DateTime.now()));
-      _textController.text = "";
-    });
+    wsService.sendMessage(Message(id: null, content: text, sender: widget.sender, receiver: widget.receiver, createdAt: DateTime.now()));
+  }
 
-    _scrollToBottom();
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+  }
+
+  Widget buildDate(DateTime time) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            Time.getFormatDate(time),
+            style: const TextStyle(fontSize: 16, color: Colors.black54),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -98,43 +91,36 @@ class _ChattingPageState extends State<ChattingPage> {
         title: CircleAvatar(
           radius: 20,
           backgroundImage: _opponent,
-          backgroundColor: Color.fromARGB(255, 209, 209, 209),
+          backgroundColor: const Color.fromARGB(255, 209, 209, 209),
         ),
-        actions: [
+        actions: const [
           Icon(Icons.person_add),
+          SizedBox(width: 10),
           Icon(Icons.report_gmailerrorred),
+          SizedBox(width: 10),
         ],
       ),
       body: Container(
         color: const Color.fromARGB(255, 252, 230, 223),
-        child: ListView.builder(
-          controller: _scrollController,
-          itemCount: messages.length,
-          itemBuilder: (context, index) {
-            List<Widget> widgets = [];
-            widgets.add(MessageWidget(message: messages[index]));
-
-            if (index < messages.length - 1) {
-              DateTime now = messages[index].time;
-              DateTime next = messages[index + 1].time;
-              if (now.isBefore(next) && (now.year != next.year || now.month != next.month || now.day != next.day)) {
-                widgets.add(Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(border: Border(bottom: BorderSide())),
-                    child: Center(
-                      child: Text(
-                        "${messages[index + 1].time.month}/${messages[index + 1].time.day}",
-                        style: TextStyle(fontSize: 20),
-                      ),
-                    ),
-                  ),
-                ));
-              }
-            }
-
-            return Column(children: widgets);
+        child: app_provider.Consumer<MessageProvider>(
+          builder: (context, messageProvider, child) {
+            final messages = messageProvider.getMessagesForRoom(roomId);
+            WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+            return ListView.builder(
+              controller: _scrollController,
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  children: [
+                    if (index == 0) buildDate(messages[index].createdAt),
+                    MessageWidget(message: messages[index], userId: widget.sender),
+                    if (index < messages.length - 1)
+                      if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
+                  ],
+                );
+              },
+            );
           },
         ),
       ),
@@ -145,13 +131,18 @@ class _ChattingPageState extends State<ChattingPage> {
             Expanded(
               child: TextField(
                 controller: _textController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: "메시지 입력",
                   border: OutlineInputBorder(),
                 ),
+                onSubmitted: (_) => _sendMessage(),
               ),
             ),
-            ElevatedButton(onPressed: _sendMessage, child: Icon(Icons.send))
+            const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: _sendMessage,
+              child: const Icon(Icons.send),
+            ),
           ],
         ),
       ),

@@ -1,6 +1,10 @@
 import 'package:buck_tanley_app/models/Chat.dart';
 import 'package:buck_tanley_app/pages/ChattingPage.dart';
+import 'package:buck_tanley_app/provider/MessageProvider.dart';
+import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:flutter/material.dart';
+import 'package:buck_tanley_app/provider/UserProvider.dart';
+import 'package:provider/provider.dart' as app_provider;
 
 class ChatWidget extends StatelessWidget {
   final Chat chat;
@@ -8,6 +12,9 @@ class ChatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? token = app_provider.Provider.of<UserProvider>(context, listen: false).token;
+    String roomId = Room.getRoomId(token ?? "", chat.userId);
+    String last = app_provider.Provider.of<MessageProvider>(context, listen: true).getlastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
       child: ElevatedButton(
@@ -22,7 +29,7 @@ class ChatWidget extends StatelessWidget {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ChattingPage()),
+            MaterialPageRoute(builder: (context) => ChattingPage(sender: token ?? "", receiver: chat.userId,)),
           );
         },
         child: Row(
@@ -50,7 +57,7 @@ class ChatWidget extends StatelessWidget {
                     maxLines: 1,
                   ),
                   Text(
-                    chat.last,
+                    last,
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w400,
