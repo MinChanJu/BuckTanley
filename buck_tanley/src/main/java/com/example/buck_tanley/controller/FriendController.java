@@ -25,7 +25,7 @@ public class FriendController {
     private FriendService friendService;
 
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<User>>> getAllFriendsByUserId(@RequestParam String userId) {
+    public ResponseEntity<ApiResponse<List<User>>> getAllFriendsByUserId(@RequestParam("userId") String userId) {
         List<User> friends = friendService.getAllFriendsByUserId(userId);
         ApiResponse<List<User>> response = new ApiResponse<>(200, true, "친구 리스트 조회 성공", friends);
         return ResponseEntity.status(HttpStatus.OK).body(response);

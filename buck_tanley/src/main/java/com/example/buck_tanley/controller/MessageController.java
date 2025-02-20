@@ -22,7 +22,7 @@ public class MessageController {
   @Autowired private MessageService messageService;
 
   @GetMapping("/{userId}")
-  public ResponseEntity<ApiResponse<List<Message>>> getMethodName(@PathVariable String userId) {
+  public ResponseEntity<ApiResponse<List<Message>>> getMethodName(@PathVariable("userId") String userId) {
     List<Message> messages = messageService.getAllMessagesByUserId(userId);
     ApiResponse<List<Message>> response = new ApiResponse<>(200, true, "조회 성공!", messages);
     return ResponseEntity.status(HttpStatus.OK).body(response);

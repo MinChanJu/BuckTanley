@@ -69,6 +69,7 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
     try {
       String response = objectMapper.writeValueAsString(matchDTO);
       session.sendMessage(new TextMessage(response));
+      System.out.println("🎯 매칭 성공 전달 -> " + matchDTO.getUserId1() + " : " + response);
     } catch (Exception e) {
       System.out.println("❌ 매칭 전송 실패: " + e.getMessage());
     }

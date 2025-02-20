@@ -5,7 +5,7 @@ import 'package:buck_tanley_app/pages/PageRouter.dart';
 import 'package:buck_tanley_app/pages/RegisterPage.dart';
 import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
-import 'package:buck_tanley_app/services/ChatWebSocketService.dart';
+import 'package:buck_tanley_app/services/WebSocketService.dart';
 import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as app_provider;
@@ -75,7 +75,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: ElevatedButton(
                         onPressed: () {
                           app_provider.Provider.of<UserProvider>(context, listen: false).login(_idController.text);
-                          final wsService = ChatWebSocketService.getInstance(_idController.text, "chat");
+                          final wsService = WebSocketService.getInstance(_idController.text, "chat");
                           final messageProvider = app_provider.Provider.of<MessageProvider>(context, listen: false);
                           messageProvider.loadMessages(_idController.text);
 

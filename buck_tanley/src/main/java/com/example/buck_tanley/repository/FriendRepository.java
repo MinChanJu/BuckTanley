@@ -24,7 +24,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             WHERE :userId IN (f.user_id1, f.user_id2)
               AND f.status = 0
             """, nativeQuery = true)
-    List<User> findAllByUserId(String userId);
+    List<User> findAllByUserId(@Param("userId") String userId);
 
     Optional<Friend> findByUserId1AndUserId2(String userId1, String userId2);
 }

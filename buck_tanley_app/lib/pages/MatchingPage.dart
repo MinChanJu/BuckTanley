@@ -1,7 +1,9 @@
 import 'dart:convert';
 
+import 'package:buck_tanley_app/models/MatchDTO.dart';
+import 'package:buck_tanley_app/pages/ChattingPage.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
-import 'package:buck_tanley_app/services/MatchWebSocketService.dart';
+import 'package:buck_tanley_app/services/WebSocketService.dart';
 import 'package:buck_tanley_app/widgets/MiniGameWidget.dart';
 import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
@@ -18,8 +20,11 @@ class _MatchingPageState extends State<MatchingPage> {
   bool isLoading = false;
   bool showMiniGame = false;
   bool match = false;
-  late AssetImage _mySelf, _opponent;
+  bool accept = false;
   String partner = "";
+  late AssetImage _mySelf, _opponent;
+  late WebSocketService matchWS;
+  late MatchDTO matchDTO;
 
   @override
   void initState() {
@@ -28,35 +33,59 @@ class _MatchingPageState extends State<MatchingPage> {
     _opponent = AssetImage('assets/images/dinosaur1.png');
   }
 
-  void matching(String? userId) {
+  void matching(String? userId, BuildContext context) {
     if (mounted && userId != null) {
-      final matchWebSocketService = MatchWebSocketService.getInstance(userId);
-      matchWebSocketService.messages.listen((data) {
+      setState(() {
+        isLoading = true;
+        showMiniGame = false;
+      });
+
+      matchWS = WebSocketService.getInstance(userId, "match");
+      matchWS.messages.listen((data) {
         try {
-          final matchJson = jsonDecode(data);
-          setState(() {
-            isLoading = false;
-            showMiniGame = false;
-            match = true;
-            partner = matchJson["partner"];
-          });
-          matchWebSocketService.disconnect();
+          matchDTO = MatchDTO.fromJson(jsonDecode(data));
+          if (matchDTO.status) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChattingPage(sender: matchDTO.userId1, receiver: matchDTO.userId2)),
+            );
+            setState(() {
+              isLoading = false;
+              showMiniGame = false;
+              match = false;
+              accept = false;
+              partner = "";
+            });
+            matchWS.disconnect();
+          } else if (isLoading) {
+            setState(() {
+              isLoading = false;
+              showMiniGame = false;
+              match = true;
+              accept = false;
+              partner = matchDTO.userId2;
+            });
+          } else {
+            setState(() {
+              match = false;
+              accept = false;
+              partner = "";
+            });
+            matchWS.disconnect();
+          }
         } catch (e) {
           print('❌ 메시지 파싱 실패: $e');
         }
       });
-      setState(() {
-        isLoading = true;
+
+      Future.delayed(Duration(seconds: 1), () {
+        if (mounted) {
+          setState(() {
+            showMiniGame = true;
+          });
+        }
       });
     }
-
-    Future.delayed(Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          showMiniGame = true;
-        });
-      }
-    });
   }
 
   Widget before() {
@@ -73,12 +102,9 @@ class _MatchingPageState extends State<MatchingPage> {
         ),
       ),
       onPressed: () {
-        matching(app_provider.Provider.of<UserProvider>(context, listen: false).token);
+        matching(app_provider.Provider.of<UserProvider>(context, listen: false).token, context);
       },
-      child: Text(
-        '매칭',
-        style: TextStyle(fontSize: 20),
-      ),
+      child: Text('매칭', style: TextStyle(fontSize: 20)),
     );
   }
 
@@ -88,7 +114,7 @@ class _MatchingPageState extends State<MatchingPage> {
         Text('매칭 중...', style: TextStyle(fontSize: 20)),
         AnimatedOpacity(
           opacity: showMiniGame ? 1.0 : 0.0, // 서서히 나타나기
-          duration: const Duration(milliseconds: 1000), // 애니메이션 지속 시간
+          duration: const Duration(seconds: 1), // 애니메이션 지속 시간
           curve: Curves.easeInOut, // 부드러운 효과
           child: showMiniGame ? MiniGameWidget() : Container(),
         ),
@@ -101,42 +127,57 @@ class _MatchingPageState extends State<MatchingPage> {
       children: [
         Text(partner, style: TextStyle(fontSize: 30)),
         SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+        if (!accept)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: EdgeInsets.all(0),
+                  backgroundColor: Colors.green,
                 ),
-                padding: EdgeInsets.all(0),
-                backgroundColor: Colors.green,
-              ),
-              onPressed: () {
-                print("ㄱㄱㄱ");
-              },
-              child: Icon(Icons.check),
-            ),
-            SizedBox(width: 50),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: EdgeInsets.all(0),
-                backgroundColor: Colors.red,
-              ),
-              onPressed: () {
-                if (mounted) {
+                onPressed: () {
+                  MatchDTO sendMatch = MatchDTO(status: true, userId1: matchDTO.userId1, userId2: matchDTO.userId2);
+                  matchWS.sendMessage(sendMatch.toJson());
                   setState(() {
-                    match = false;
+                    accept = true;
                   });
-                }
-              },
-              child: Icon(Icons.clear),
+                },
+                child: Icon(Icons.check),
+              ),
+              SizedBox(width: 50),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: EdgeInsets.all(0),
+                  backgroundColor: Colors.red,
+                ),
+                onPressed: () {
+                  if (mounted) {
+                    MatchDTO sendMatch = MatchDTO(status: false, userId1: matchDTO.userId1, userId2: matchDTO.userId2);
+                    matchWS.sendMessage(sendMatch.toJson());
+                  }
+                },
+                child: Icon(Icons.clear),
+              ),
+            ],
+          ),
+        if (accept)
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.amber,
             ),
-          ],
-        ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Text("기다리는 중...", style: TextStyle(fontSize: 15)),
+            ),
+          )
       ],
     );
   }
