@@ -4,7 +4,7 @@ import 'package:buck_tanley_app/utils/Server.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:buck_tanley_app/models/Message.dart';
+import 'package:buck_tanley_app/models/entity/Message.dart';
 
 class MessageProvider with ChangeNotifier {
   // roomId -> List<Message>

@@ -1,6 +1,6 @@
 // import 'dart:convert';
 
-import 'package:buck_tanley_app/models/Message.dart';
+import 'package:buck_tanley_app/models/entity/Message.dart';
 import 'package:buck_tanley_app/services/ChatWebSocketService.dart';
 import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:buck_tanley_app/utils/Time.dart';
@@ -30,7 +30,7 @@ class _ChattingPageState extends State<ChattingPage> {
     super.initState();
     _opponent = AssetImage('assets/images/dinosaur1.png');
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    wsService = ChatWebSocketService.getInstance(widget.sender);
+    wsService = ChatWebSocketService.getInstance(widget.sender, "chat");
     roomId = Room.getRoomId(widget.sender, widget.receiver);
   }
 

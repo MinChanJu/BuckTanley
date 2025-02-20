@@ -78,15 +78,17 @@ public class UserService {
     }
 
     @Transactional
-    public Optional<User> authenticalUser(String userId, String userPw) {
+    public User authenticalUser(String userId, String userPw) {
         if (userId == null || userPw == null)
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
 
-        Optional<User> user = userRepository.findByUserId(userId);
-        if (user.isEmpty())
+        Optional<User> findUser = userRepository.findByUserId(userId);
+        if (findUser.isEmpty())
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        
+        User user = findUser.get();
 
-        if (!user.get().getUserPw().equals(userPw)) // 실제 시스템에서는 비밀번호 암호화를 사용해야 합니다.
+        if (!user.getUserPw().equals(userPw)) // 실제 시스템에서는 비밀번호 암호화를 사용해야 합니다.
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
 
         return user;

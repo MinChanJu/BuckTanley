@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:buck_tanley_app/models/MatchDTO.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/html.dart';
 
@@ -31,6 +34,12 @@ class MatchWebSocketService {
 
   // WebSocket 메시지 스트림
   Stream<dynamic> get messages => _broadcastStream;
+
+  void sendMatch(MatchDTO matchDTO) {
+    final jsonString = jsonEncode(matchDTO.toJson());
+    _channel.sink.add(jsonString);
+    print('💬 매칭 전송 $userId : $jsonString');
+  }
 
   // WebSocket 연결 해제
   void disconnect() {

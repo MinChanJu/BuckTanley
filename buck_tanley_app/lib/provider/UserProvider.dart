@@ -21,7 +21,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    final wsService = ChatWebSocketService.getInstance(_token ?? "");
+    final wsService = ChatWebSocketService.getInstance(_token ?? "", "chat");
     wsService.disconnect();
 
     _token = null;
