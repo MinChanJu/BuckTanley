@@ -12,10 +12,7 @@ class MessageProvider with ChangeNotifier {
 
   Future<void> loadMessages(String userId) async {
     try {
-      final response = await http.get(Uri.parse('${Server.url}/messages/$userId'), headers: {
-        'Accept': 'application/json; charset=UTF-8',
-        'Content-Type': 'application/json; charset=UTF-8',
-      });
+      final response = await http.get(Uri.parse('${Server.url}/messages/$userId'), headers: Server.header);
 
       if (response.statusCode == 200) {
         final decoded = jsonDecode(response.body);

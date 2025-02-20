@@ -1,7 +1,7 @@
 // import 'dart:convert';
 
 import 'package:buck_tanley_app/models/entity/Message.dart';
-import 'package:buck_tanley_app/services/ChatWebSocketService.dart';
+import 'package:buck_tanley_app/services/WebSocketService.dart';
 import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:buck_tanley_app/utils/Time.dart';
 import 'package:buck_tanley_app/widgets/MessageWidget.dart';
@@ -21,7 +21,7 @@ class ChattingPage extends StatefulWidget {
 class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
-  late ChatWebSocketService wsService;
+  late WebSocketService wsService;
   late AssetImage _opponent;
   late String roomId;
 
@@ -30,7 +30,7 @@ class _ChattingPageState extends State<ChattingPage> {
     super.initState();
     _opponent = AssetImage('assets/images/dinosaur1.png');
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    wsService = ChatWebSocketService.getInstance(widget.sender, "chat");
+    wsService = WebSocketService.getInstance(widget.sender, "chat");
     roomId = Room.getRoomId(widget.sender, widget.receiver);
   }
 
@@ -56,7 +56,7 @@ class _ChattingPageState extends State<ChattingPage> {
     _textController.clear();
     if (text.isEmpty) return;
 
-    wsService.sendMessage(Message(id: null, content: text, sender: widget.sender, receiver: widget.receiver, createdAt: DateTime.now()));
+    wsService.sendMessage(Message(id: null, content: text, sender: widget.sender, receiver: widget.receiver, createdAt: DateTime.now()).toJson());
   }
 
   @override
