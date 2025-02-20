@@ -35,13 +35,11 @@ public class MatchService {
         Match match = new Match();
         match.setUserId1(userId1);
         match.setUserId2(userId2);
-        match.setStatus((short) 0); // 매칭 요청
         return matchRepository.save(match);
     }
 
     public Match updateMatch(Long matchId) {
         Match match = matchRepository.findById(matchId).orElseThrow(() -> new CustomException(ErrorCode.MATCH_NOT_FOUND));
-        match.setStatus((short) 1); // 매칭 수락
         return matchRepository.save(match);
     }
 

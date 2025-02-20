@@ -33,10 +33,6 @@ public class UserService {
         return user.get();
     }
 
-    public User getUsersByUserId(String userId) {
-        
-    }
-
     @Transactional
     public User createUser(User user) {
         if (userRepository.existsByUserId(user.getUserId()))
