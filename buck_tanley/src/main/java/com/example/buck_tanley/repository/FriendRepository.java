@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.buck_tanley.domain.entity.Friend;
@@ -25,9 +24,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
             WHERE :userId IN (f.user_id1, f.user_id2)
               AND f.status = 0
             """, nativeQuery = true)
-    List<User> findFriends(@Param("userId") String userId);
-
-    List<Friend> findAllByUserId(String userId);
+    List<User> findAllByUserId(String userId);
 
     Optional<Friend> findByUserId1AndUserId2(String userId1, String userId2);
 }

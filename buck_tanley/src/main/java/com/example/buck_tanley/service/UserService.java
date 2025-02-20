@@ -9,6 +9,7 @@ import com.example.buck_tanley.exception.CustomException;
 import com.example.buck_tanley.exception.ErrorCode;
 import com.example.buck_tanley.repository.UserRepository;
 
+import java.time.ZonedDateTime;
 import java.util.*;
 
 @Service
@@ -50,6 +51,10 @@ public class UserService {
 
         if (password.length() < 10)
             throw new CustomException(ErrorCode.INVALID_PASSWORD_LEN); // 길이 10자 이상 확인
+
+        user.setStatus((short) 0); // 기존 상태
+
+        user.setCreatedAt(ZonedDateTime.now());
 
         return userRepository.save(user);
     }

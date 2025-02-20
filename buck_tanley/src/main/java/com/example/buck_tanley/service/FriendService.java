@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.example.buck_tanley.domain.entity.Friend;
 import com.example.buck_tanley.domain.entity.User;
@@ -11,13 +12,14 @@ import com.example.buck_tanley.exception.CustomException;
 import com.example.buck_tanley.exception.ErrorCode;
 import com.example.buck_tanley.repository.FriendRepository;
 
+@Service
 public class FriendService {
 
     @Autowired
     private FriendRepository friendRepository;
 
     public List<User> getAllFriendsByUserId(String userId) {
-        return friendRepository.findFriends(userId);
+        return friendRepository.findAllByUserId(userId);
     }
 
     public Friend createFriend(String userId1, String userId2) {
