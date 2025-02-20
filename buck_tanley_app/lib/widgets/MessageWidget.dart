@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/models/Message.dart';
+import 'package:buck_tanley_app/models/entity/Message.dart';
 import 'package:buck_tanley_app/utils/Time.dart';
 import 'package:flutter/material.dart';
 

@@ -32,9 +32,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         String userId = (String) session.getAttributes().get("userId");
         if (userId != null) {
             userChatRooms.put(userId, session);
-            System.out.println("🔌 사용자 연결: " + userId);
+            System.out.println("🔌 챗 사용자 연결: " + userId);
         } else {
-            System.out.println("⚠️ 사용자 ID가 전달되지 않았습니다.");
+            System.out.println("⚠️ 챗 사용자 ID가 전달되지 않았습니다.");
         }
     }
 
@@ -42,7 +42,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
         String payload = textMessage.getPayload();
-        System.out.println("📨 받은 메시지: " + payload);
+        System.out.println("📨 챗 받은 메세지: " + payload);
 
         try {
             Message message = objectMapper.readValue(payload, Message.class);
@@ -51,8 +51,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             // 수신자에게 메시지 전송
             sendPrivateMessage(message);
         } catch (Exception e) {
-            System.out.println("❌ 메시지 처리 실패: " + e.getMessage());
-            session.sendMessage(new TextMessage("⚠️ 잘못된 메시지 형식입니다."));
+            System.out.println("❌ 챗 메세지 처리 실패: " + e.getMessage());
+            session.sendMessage(new TextMessage("⚠️ 챗 잘못된 메세지 형식입니다."));
         }
     }
 
@@ -71,12 +71,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (receiverSession != null && receiverSession.isOpen()) {
             if (!message.getSender().equals(message.getReceiver())) {
                 receiverSession.sendMessage(new TextMessage(response));
-                System.out.println("📤 메시지 전송 완료 → " + message.getReceiver() + " (웹소켓으로 전송)");
+                System.out.println("📤 챗 메세지 전송 완료 → " + message.getReceiver() + " (웹소켓으로 전송)");
             } else {
-                System.out.println("📤 본인에게 메시지 전송 완료");
+                System.out.println("📤 챗 본인에게 메세지 전송 완료");
             }
         } else {
-            System.out.println("⚠️ 수신자 세션이 없습니다: " + message.getReceiver() + " (DB로 조회 가능)");
+            System.out.println("⚠️ 쳇 수신자 세션이 없습니다: " + message.getReceiver() + " (DB로 조회 가능)");
         }
     }
 
@@ -85,13 +85,13 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
         String userId = (String) session.getAttributes().get("userId");
         userChatRooms.remove(userId);
-        System.out.println("🔌 사용자 연결 해제: " + userId);
+        System.out.println("🔌 챗 사용자 연결 해제: " + userId);
     }
 
     @SuppressWarnings("null")
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
-        System.err.println("⚠️ 오류 발생: " + exception.getMessage());
+        System.err.println("⚠️ 챗 오류 발생: " + exception.getMessage());
     }
 
 }
