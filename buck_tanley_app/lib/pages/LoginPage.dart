@@ -1,12 +1,8 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/models/entity/Message.dart';
 import 'package:buck_tanley_app/pages/PageRouter.dart';
 import 'package:buck_tanley_app/pages/RegisterPage.dart';
-import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
-import 'package:buck_tanley_app/services/WebSocketService.dart';
-import 'package:buck_tanley_app/utils/Room.dart';
 import 'package:buck_tanley_app/utils/Server.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as app_provider;
@@ -49,29 +45,12 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         print("로그인 성공: $responseData");
-        app_provider.Provider.of<UserProvider>(context, listen: false)
-            .login(_idController.text);
-        final wsService =
-            WebSocketService.getInstance(_idController.text, "chat");
-        final messageProvider =
-            app_provider.Provider.of<MessageProvider>(context, listen: false);
-        messageProvider.loadMessages(_idController.text);
 
-        // 새로운 메시지 수신 시 실시간 추가
-        wsService.messages.listen((data) {
-          try {
-            final message = Message.fromJson(jsonDecode(data));
-            String roomId = Room.getRoomId(message.sender, message.receiver);
-            messageProvider.addMessage(roomId, message);
-            print('📨 메시지 수신 및 저장 (방: $roomId): ${message.content}');
-          } catch (e) {
-            print('❌ 메시지 파싱 실패: $e');
-          }
-        }, onDone: () {
-          print('🔌 WebSocket 연결 종료');
-        }, onError: (error) {
-          print('❌ WebSocket 오류: $error');
-        });
+        final token = responseData['accessToken'];
+        final userId = _idController.text;
+
+        app_provider.Provider.of<UserProvider>(context, listen: false)
+            .login(token, userId);
 
         Navigator.pushReplacement(
           context,

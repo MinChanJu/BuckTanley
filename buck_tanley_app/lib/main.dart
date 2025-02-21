@@ -55,14 +55,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    bool login = app_provider.Provider.of<UserProvider>(context, listen: false).isLogin;
-    return MaterialApp(
-      title: 'BuckTanley',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return app_provider.ChangeNotifierProvider(
+      create: (context) => UserProvider()..loadUser(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: app_provider.Consumer<UserProvider>(
+          builder: (context, userProvider, _) {
+            if (userProvider.isLogin) {
+              return const PageRouter();
+            } else {
+              return const LoginPage();
+            }
+          },
+        ),
       ),
-      home: login ? const PageRouter() : const LoginPage(),
     );
   }
 }
