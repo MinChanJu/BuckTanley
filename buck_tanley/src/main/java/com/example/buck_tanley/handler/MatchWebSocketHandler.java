@@ -122,6 +122,7 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
       String userId = (String) session.getAttributes().get("userId");
       session.close(CloseStatus.NORMAL);
       userSessions.remove(userId);
+      System.out.println("🔌 매칭 사용자 연결 강제 종료: " + userId);
     } catch (IOException e) {
       e.printStackTrace();
     }

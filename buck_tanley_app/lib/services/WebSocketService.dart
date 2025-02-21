@@ -26,13 +26,13 @@ class WebSocketService {
   void _connect() {
     try {
       String url = "";
-      if (type == "chat") url = Server.chatWS;
+      if (type == "chat" || type == "random") url = Server.chatWS;
       if (type == "match") url = Server.matchWS;
-      _channel = HtmlWebSocketChannel.connect(Uri.parse('$url?userId=$userId'));
+      _channel = HtmlWebSocketChannel.connect(Uri.parse('$url?userId=$userId&type=$type'));
       _broadcastStream = _channel.stream.asBroadcastStream();
-      print('🔌 WebSocket 연결 성공: $userId, $url');
+      print('🔌 WebSocket $type 연결 성공: $userId');
     } catch (e) {
-      print('🚨 WebSocket 연결 실패: $e');
+      print('🚨 WebSocket $type 연결 실패: $e');
     }
   }
 
@@ -43,13 +43,13 @@ class WebSocketService {
   void sendMessage(Map<String, dynamic> json) {
     final jsonString = jsonEncode(json);
     _channel.sink.add(jsonString);
-    print('💬 메세지 전송 ($userId $type): $jsonString');
+    print('💬 WebSocket $type 메세지 전송: $userId $jsonString');
   }
 
   // WebSocket 연결 해제
   void disconnect() {
     _channel.sink.close();
     _instances.remove(type);
-    print('🔌 WebSocket 연결 해제: $userId');
+    print('🔌 WebSocket $type 연결 해제: $userId');
   }
 }

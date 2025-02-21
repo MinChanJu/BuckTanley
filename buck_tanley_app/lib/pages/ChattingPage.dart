@@ -1,5 +1,7 @@
 // import 'dart:convert';
 
+import 'dart:convert';
+
 import 'package:buck_tanley_app/models/entity/Message.dart';
 import 'package:buck_tanley_app/services/WebSocketService.dart';
 import 'package:buck_tanley_app/utils/Room.dart';
@@ -12,7 +14,8 @@ import 'package:flutter/material.dart';
 class ChattingPage extends StatefulWidget {
   final String sender;
   final String receiver;
-  const ChattingPage({super.key, required this.sender, required this.receiver});
+  final bool random;
+  const ChattingPage({super.key, required this.sender, required this.receiver, required this.random});
 
   @override
   State<ChattingPage> createState() => _ChattingPageState();
@@ -21,6 +24,7 @@ class ChattingPage extends StatefulWidget {
 class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
+  final List<Message> messages = [];
   late WebSocketService wsService;
   late AssetImage _opponent;
   late String roomId;
@@ -30,7 +34,29 @@ class _ChattingPageState extends State<ChattingPage> {
     super.initState();
     _opponent = AssetImage('assets/images/dinosaur1.png');
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    wsService = WebSocketService.getInstance(widget.sender, "chat");
+    wsService = WebSocketService.getInstance(widget.sender, widget.random ? "random" : "chat");
+    if (widget.random) {
+      wsService.messages.listen((data) {
+        try {
+          final Message message = Message.fromJson(jsonDecode(data));
+          setState(() {
+            messages.add(message);
+          });
+          print('📨 메시지 수신 및 저장 random: ${message.content}');
+        } catch (e) {
+          print('❌ 메시지 파싱 실패 random: $e');
+        }
+      }, onDone: () {
+        print('🔌 WebSocket random 연결 종료');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Navigator.pop(context);
+          }
+        });
+      }, onError: (error) {
+        print('❌ WebSocket random 오류: $error');
+      });
+    }
     roomId = Room.getRoomId(widget.sender, widget.receiver);
   }
 
@@ -38,6 +64,10 @@ class _ChattingPageState extends State<ChattingPage> {
   void dispose() {
     _scrollController.dispose();
     _textController.dispose();
+    if (widget.random) {
+      wsService.sendMessage(Message(id: 1, content: "text", sender: widget.sender, receiver: widget.receiver, createdAt: DateTime.now()).toJson());
+      wsService.disconnect();
+    }
     super.dispose();
   }
 
@@ -102,27 +132,43 @@ class _ChattingPageState extends State<ChattingPage> {
       ),
       body: Container(
         color: const Color.fromARGB(255, 252, 230, 223),
-        child: app_provider.Consumer<MessageProvider>(
-          builder: (context, messageProvider, child) {
-            final messages = messageProvider.getMessagesForRoom(roomId);
-            WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-            return ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                return Column(
-                  crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                  children: [
-                    if (index == 0) buildDate(messages[index].createdAt),
-                    MessageWidget(message: messages[index], userId: widget.sender),
-                    if (index < messages.length - 1)
-                      if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
-                  ],
-                );
-              },
-            );
-          },
-        ),
+        child: widget.random
+            ? ListView.builder(
+                controller: _scrollController,
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      if (index == 0) buildDate(messages[index].createdAt),
+                      MessageWidget(message: messages[index], userId: widget.sender),
+                      if (index < messages.length - 1)
+                        if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
+                    ],
+                  );
+                },
+              )
+            : app_provider.Consumer<MessageProvider>(
+                builder: (context, messageProvider, child) {
+                  final messages = messageProvider.getMessagesForRoom(roomId);
+                  WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                  return ListView.builder(
+                    controller: _scrollController,
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      return Column(
+                        crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          if (index == 0) buildDate(messages[index].createdAt),
+                          MessageWidget(message: messages[index], userId: widget.sender),
+                          if (index < messages.length - 1)
+                            if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(10),
