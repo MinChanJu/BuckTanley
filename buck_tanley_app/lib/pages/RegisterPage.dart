@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:typed_data';
 
+import 'package:buck_tanley_app/models/entity/User.dart';
 import 'package:buck_tanley_app/utils/Server.dart';
 import 'package:buck_tanley_app/widgets/AdBanner.dart';
 import 'package:buck_tanley_app/widgets/LogoAppBar.dart';
@@ -26,7 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _ageController = TextEditingController(); // 생년월일
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  bool? selectedGender;
+  bool selectedGender=true;
   Uint8List? _webImage; // 웹 환경 이미지
   io.File? _image; // 모바일 환경 이미지
 
@@ -48,24 +49,23 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _registerUser() async {
-    final url = Uri.parse('${Server.apiUrl}/users/register');
-    final headers = {
-      'Accept': 'application/json; charset=UTF-8',
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    final body = jsonEncode({
-      "userId": _idController.text,
-      "userPw": _passwordController.text,
-      "name": _nicknameController.text,
-      "introduction": _bioController.text,
-      "age": int.parse(_ageController.text),
-      "phone": _phoneController.text,
-      "email": _emailController.text,
-      "gender": selectedGender,
-    });
+    final User user = User(
+        id: null,
+        userId: _idController.text,
+        userPw: _passwordController.text,
+        name: _nicknameController.text,
+        phone: _phoneController.text,
+        email: _emailController.text,
+        image: encodeImage(),
+        introduction: _bioController.text,
+        age: int.tryParse(_ageController.text) ?? 0,
+        gender: selectedGender,
+        status: 0,
+        createdAt: DateTime.now());
 
     try {
-      final response = await http.post(url, headers: headers, body: body);
+      final response = await http.post(Uri.parse('${Server.url}/users/register'),
+          headers: Server.header, body: jsonEncode(user.toJson()));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
@@ -74,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _showMessage("회원가입 실패: ${responseData['message']}");
       }
     } catch (e) {
-      _showMessage("회원가입 중 오류 발생");
+      _showMessage("회원가입 중 오류 발생 $e");
     }
   }
 
@@ -82,6 +82,15 @@ class _RegisterPageState extends State<RegisterPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
+  }
+
+  String? encodeImage() {
+    if (_webImage != null) {
+      return base64Encode(_webImage!);
+    } else if (_image != null) {
+      return base64Encode(_image!.readAsBytesSync());
+    }
+    return null;
   }
 
   @override
@@ -165,8 +174,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     TextField(
                       controller: _ageController,
                       decoration: const InputDecoration(
-                        hintText: '000000',
-                        labelText: '생년월일',
+                        labelText: '나이',
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -198,7 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           groupValue: selectedGender,
                           onChanged: (value) {
                             setState(() {
-                              selectedGender = value;
+                              selectedGender = value!;
                             });
                           },
                         ),
@@ -209,7 +217,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           groupValue: selectedGender,
                           onChanged: (value) {
                             setState(() {
-                              selectedGender = value;
+                              selectedGender = value!;
                             });
                           },
                         ),
