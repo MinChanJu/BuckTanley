@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io' as io;
-import 'dart:typed_data';
 
 import 'package:buck_tanley_app/models/entity/User.dart';
 import 'package:buck_tanley_app/utils/Server.dart';
@@ -21,19 +20,17 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _idController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nicknameController =
-      TextEditingController(); // 닉네임
+  final TextEditingController _nicknameController = TextEditingController(); // 닉네임
   final TextEditingController _bioController = TextEditingController(); // 자기소개
   final TextEditingController _ageController = TextEditingController(); // 생년월일
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
-  bool selectedGender=true;
+  bool selectedGender = true;
   Uint8List? _webImage; // 웹 환경 이미지
   io.File? _image; // 모바일 환경 이미지
 
   Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       if (kIsWeb) {
         final bytes = await pickedFile.readAsBytes();
@@ -64,8 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
         createdAt: DateTime.now());
 
     try {
-      final response = await http.post(Uri.parse('${Server.url}/users/register'),
-          headers: Server.header, body: jsonEncode(user.toJson()));
+      final response = await http.post(Uri.parse('${Server.userUrl}/register'), headers: Server.header, body: jsonEncode(user.toJson()));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
@@ -196,8 +192,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const Text(
                       "성별",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     Row(
                       children: [
@@ -227,8 +222,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     const SizedBox(height: 20),
                     const Text(
                       "자기소개 (20자 미만)",
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     TextField(
                       controller: _bioController,
