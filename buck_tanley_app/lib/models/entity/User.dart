@@ -5,7 +5,7 @@ class User {
   final String name;
   final String phone;
   final String email;
-  final String image;
+  final String? image;
   final String introduction;
   final int age;
   final bool gender;
