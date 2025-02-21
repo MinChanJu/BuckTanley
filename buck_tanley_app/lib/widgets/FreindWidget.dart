@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/models/Freind.dart';
+import 'package:buck_tanley_app/models/entity/Freind.dart';
 import 'package:flutter/material.dart';
 
 class FreindWidget extends StatelessWidget {
@@ -23,12 +23,12 @@ class FreindWidget extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: AssetImage(freind.image == "" ? "assets/images/dinosaur1.png" : freind.image),
+              backgroundImage: AssetImage(freind.id == null ? "assets/images/dinosaur1.png" : freind.userId1),
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),
             Text(
-              freind.name,
+              freind.userId2,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -37,7 +37,7 @@ class FreindWidget extends StatelessWidget {
             SizedBox(width: 20),
             Expanded(
               child: Text(
-                freind.message,
+                freind.userId1,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,

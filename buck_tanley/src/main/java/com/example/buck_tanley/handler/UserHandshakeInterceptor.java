@@ -15,9 +15,15 @@ public class UserHandshakeInterceptor implements HandshakeInterceptor {
                                     WebSocketHandler wsHandler, Map<String, Object> attributes) {
         // 쿼리 파라미터에서 userId 가져와 attributes에 저장
         String query = request.getURI().getQuery();
-        if (query != null && query.contains("userId=")) {
-            String userId = query.split("userId=")[1].split("&")[0];
-            attributes.put("userId", userId);
+        if (query != null) {
+            if (query.contains("userId=")) {
+                String userId = query.split("userId=")[1].split("&")[0];
+                attributes.put("userId", userId);
+            }
+            if (query.contains("type=")) {
+                String type = query.split("type=")[1].split("&")[0];
+                attributes.put("type", type);
+            }
         }
         return true;
     }

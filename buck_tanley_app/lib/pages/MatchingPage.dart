@@ -16,7 +16,6 @@ class MatchingPage extends StatefulWidget {
 }
 
 class _MatchingPageState extends State<MatchingPage> {
-  int tab = 0;
   bool isLoading = false;
   bool showMiniGame = false;
   bool match = false;
@@ -33,7 +32,7 @@ class _MatchingPageState extends State<MatchingPage> {
     _opponent = AssetImage('assets/images/dinosaur1.png');
   }
 
-  void matching(String? userId, BuildContext context) {
+  void matching(String? userId) {
     if (mounted && userId != null) {
       setState(() {
         isLoading = true;
@@ -45,10 +44,14 @@ class _MatchingPageState extends State<MatchingPage> {
         try {
           matchDTO = MatchDTO.fromJson(jsonDecode(data));
           if (matchDTO.status) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ChattingPage(sender: matchDTO.userId1, receiver: matchDTO.userId2)),
-            );
+            if (mounted) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChattingPage(sender: matchDTO.userId1, receiver: matchDTO.userId2, random: true)),
+                );
+              });
+            }
             setState(() {
               isLoading = false;
               showMiniGame = false;
@@ -73,6 +76,7 @@ class _MatchingPageState extends State<MatchingPage> {
             });
             matchWS.disconnect();
           }
+          print('📨 매칭 메세지 수신: ${matchDTO.toJson()}');
         } catch (e) {
           print('❌ 메시지 파싱 실패: $e');
         }
@@ -102,7 +106,7 @@ class _MatchingPageState extends State<MatchingPage> {
         ),
       ),
       onPressed: () {
-        matching(app_provider.Provider.of<UserProvider>(context, listen: false).token, context);
+        matching(app_provider.Provider.of<UserProvider>(context, listen: false).token);
       },
       child: Text('매칭', style: TextStyle(fontSize: 20)),
     );

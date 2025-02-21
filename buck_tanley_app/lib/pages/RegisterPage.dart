@@ -48,7 +48,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _registerUser() async {
-    final url = Uri.parse('${Server.url}/users/register');
+    final url = Uri.parse('${Server.apiUrl}/users/register');
     final headers = {
       'Accept': 'application/json; charset=UTF-8',
       'Content-Type': 'application/json; charset=UTF-8',
