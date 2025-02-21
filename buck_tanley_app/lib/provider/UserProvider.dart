@@ -26,7 +26,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> _validateToken() async {
-    final url = Uri.parse('${Server.url}/users/validateToken');
+    final url = Uri.parse('${Server.userUrl}/validateToken');
     final headers = {'Authorization': 'Bearer $token', ...Server.header};
 
     try {

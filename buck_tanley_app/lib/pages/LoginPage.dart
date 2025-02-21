@@ -30,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _loginUser() async {
-    final url = Uri.parse('${Server.url}/users/login');
+    final url = Uri.parse('${Server.userUrl}/login');
     final headers = Server.header;
     final body = jsonEncode({
       "userId": _idController.text,
@@ -49,8 +49,7 @@ class _LoginPageState extends State<LoginPage> {
         // final token = responseData['token'];
         final userId = _idController.text;
 
-        app_provider.Provider.of<UserProvider>(context, listen: false)
-            .login(userId);
+        app_provider.Provider.of<UserProvider>(context, listen: false).login(userId);
 
         Navigator.pushReplacement(
           context,
@@ -151,8 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                     ..onTap = () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const RegisterPage()),
+                        MaterialPageRoute(builder: (context) => const RegisterPage()),
                       );
                     },
                 ),
