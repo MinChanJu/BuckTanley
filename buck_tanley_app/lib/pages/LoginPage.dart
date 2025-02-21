@@ -46,11 +46,11 @@ class _LoginPageState extends State<LoginPage> {
       if (response.statusCode == 200) {
         print("로그인 성공: $responseData");
 
-        final token = responseData['accessToken'];
+        // final token = responseData['token'];
         final userId = _idController.text;
 
         app_provider.Provider.of<UserProvider>(context, listen: false)
-            .login(token, userId);
+            .login(userId);
 
         Navigator.pushReplacement(
           context,

@@ -64,8 +64,8 @@ class _RegisterPageState extends State<RegisterPage> {
         createdAt: DateTime.now());
 
     try {
-      final response = await http.post(Uri.parse('${Server.url}/register'),
-          headers: Server.header, body: user);
+      final response = await http.post(Uri.parse('${Server.url}/users/register'),
+          headers: Server.header, body: jsonEncode(user.toJson()));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
@@ -74,7 +74,7 @@ class _RegisterPageState extends State<RegisterPage> {
         _showMessage("회원가입 실패: ${responseData['message']}");
       }
     } catch (e) {
-      _showMessage("회원가입 중 오류 발생");
+      _showMessage("회원가입 중 오류 발생 $e");
     }
   }
 

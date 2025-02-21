@@ -42,14 +42,14 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> login(String token, String userId) async {
+  Future<void> login(String token) async {
     _token = token;
     await _storage.write(key: 'accessToken', value: _token);
     notifyListeners();
 
-    final wsService = WebSocketService.getInstance(userId, "chat");
+    final wsService = WebSocketService.getInstance(token, "chat");
     final messageProvider = MessageProvider();
-    messageProvider.loadMessages(userId);
+    messageProvider.loadMessages(token);
 
     wsService.messages.listen((data) {
       try {
