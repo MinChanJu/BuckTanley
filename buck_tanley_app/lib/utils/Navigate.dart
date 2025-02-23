@@ -23,12 +23,12 @@ class Navigate {
     }
   }
 
-  static void pushChatting(String sender, String receiver, bool random) {
+  static void pushChatting(UserDTO opponent, bool random) {
     final context = getIt<GlobalKey<NavigatorState>>().currentContext;
     if (context != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ChattingPage(sender: sender, receiver: receiver, random: random)),
+        MaterialPageRoute(builder: (context) => ChattingPage(opponent: opponent, random: random)),
       );
     } else {
       print('❌ context가 없습니다.');

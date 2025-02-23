@@ -1,5 +1,4 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:buck_tanley_app/utils/Navigate.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' as foundation;
 import 'package:provider/provider.dart' as app_provider;
@@ -26,7 +25,7 @@ class ChatWidget extends StatelessWidget {
           backgroundColor: Colors.white,
         ),
         onPressed: () {
-          Navigate.pushChatting(user?.userId ?? "", friend.userId, false);
+          Navigate.pushChatting(friend, false);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,

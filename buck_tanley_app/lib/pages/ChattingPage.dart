@@ -5,10 +5,9 @@ import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
 class ChattingPage extends StatefulWidget {
-  final String sender;
-  final String receiver;
+  final UserDTO opponent;
   final bool random;
-  const ChattingPage({super.key, required this.sender, required this.receiver, required this.random});
+  const ChattingPage({super.key, required this.opponent, required this.random});
 
   @override
   State<ChattingPage> createState() => _ChattingPageState();
@@ -17,17 +16,17 @@ class ChattingPage extends StatefulWidget {
 class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
-  final List<Message> messages = [];
+  final String userId = getIt<UserProvider>().user!.userId;
+  late ImageProvider imageProvider;
   late WebSocketService wsService;
-  late AssetImage _opponent;
+  final List<Message> messages = [];
   late String roomId;
 
   @override
   void initState() {
     super.initState();
-    _opponent = AssetImage('assets/images/dinosaur1.png');
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    wsService = WebSocketService.getInstance(widget.sender, widget.random ? "random" : "chat");
+    wsService = WebSocketService.getInstance(widget.random ? "random" : "chat");
     if (widget.random) {
       wsService.messages.listen((data) {
         try {
@@ -50,7 +49,8 @@ class _ChattingPageState extends State<ChattingPage> {
         print('❌ WebSocket random 오류: $error');
       });
     }
-    roomId = Room.getRoomId(widget.sender, widget.receiver);
+    roomId = Room.getRoomId(userId, widget.opponent.userId);
+    imageProvider = ImageConverter.getImageDecode(widget.opponent.image);
   }
 
   @override
@@ -58,7 +58,7 @@ class _ChattingPageState extends State<ChattingPage> {
     _scrollController.dispose();
     _textController.dispose();
     if (widget.random) {
-      wsService.sendMessage(Message(id: 1, content: "text", sender: widget.sender, receiver: widget.receiver, createdAt: DateTime.now()).toJson());
+      wsService.sendMessage(Message(id: 1, content: "text", sender: userId, receiver: widget.opponent.userId, createdAt: DateTime.now()).toJson());
       wsService.disconnect();
     }
     super.dispose();
@@ -79,7 +79,7 @@ class _ChattingPageState extends State<ChattingPage> {
     _textController.clear();
     if (text.isEmpty) return;
 
-    wsService.sendMessage(Message(id: null, content: text, sender: widget.sender, receiver: widget.receiver, createdAt: DateTime.now()).toJson());
+    wsService.sendMessage(Message(id: null, content: text, sender: userId, receiver: widget.opponent.userId, createdAt: DateTime.now()).toJson());
   }
 
   @override
@@ -111,16 +111,16 @@ class _ChattingPageState extends State<ChattingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: CircleAvatar(
-          radius: 20,
-          backgroundImage: _opponent,
-          backgroundColor: const Color.fromARGB(255, 209, 209, 209),
+        title: Center(
+          child: CircleAvatar(
+            radius: 20,
+            backgroundImage: imageProvider,
+            backgroundColor: const Color.fromARGB(255, 209, 209, 209),
+          ),
         ),
-        actions: const [
-          Icon(Icons.person_add),
-          SizedBox(width: 10),
-          Icon(Icons.report_gmailerrorred),
-          SizedBox(width: 10),
+        actions: [
+          IconButton(onPressed: () {print("친구 추가");}, icon:  Icon(Icons.person_add)),
+          IconButton(onPressed: () {print("메뉴 버튼");}, icon:  Icon(Icons.menu_rounded)),
         ],
       ),
       body: Container(
@@ -131,10 +131,10 @@ class _ChattingPageState extends State<ChattingPage> {
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   return Column(
-                    crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    crossAxisAlignment: messages[index].sender == userId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                     children: [
                       if (index == 0) buildDate(messages[index].createdAt),
-                      MessageWidget(message: messages[index], userId: widget.sender),
+                      MessageWidget(message: messages[index], userId: userId),
                       if (index < messages.length - 1)
                         if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
                     ],
@@ -150,10 +150,10 @@ class _ChattingPageState extends State<ChattingPage> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       return Column(
-                        crossAxisAlignment: messages[index].sender == widget.sender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        crossAxisAlignment: messages[index].sender == userId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                         children: [
                           if (index == 0) buildDate(messages[index].createdAt),
-                          MessageWidget(message: messages[index], userId: widget.sender),
+                          MessageWidget(message: messages[index], userId: userId),
                           if (index < messages.length - 1)
                             if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
                         ],

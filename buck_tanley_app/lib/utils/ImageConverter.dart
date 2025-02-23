@@ -68,13 +68,26 @@ class ImageConverter {
     final defaultImage = AssetImage("assets/images/BuckTanleyLogo.png");
 
     if (image == null) {
+      print("image null");
       return defaultImage;
     }
 
     if (foundation.kIsWeb) {
-      return image.webImage != null ? MemoryImage(image.webImage!) : defaultImage;
+      print("웹");
+      if (image.webImage == null) {
+        print("webImage null");
+        return defaultImage;
+      }
+      print("webImage");
+      return MemoryImage(image.webImage!);
     } else {
-      return image.mobileImage != null ? FileImage(image.mobileImage!) : defaultImage;
+      print("모바일");
+      if (image.mobileImage == null){
+        print("mobileImage null");
+        return defaultImage;
+      }
+      print("mobileImage");
+      return FileImage(image.mobileImage!);
     }
   }
 

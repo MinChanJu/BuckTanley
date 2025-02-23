@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
 class MatchingPage extends StatefulWidget {
@@ -17,6 +16,7 @@ class _MatchingPageState extends State<MatchingPage> {
   bool match = false;
   bool accept = false;
   UserDTO partner = UserDTO.init("");
+  UserDTO opponent = UserDTO.init("");
   late WebSocketService matchWS;
   late MatchDTO matchDTO;
 
@@ -25,45 +25,51 @@ class _MatchingPageState extends State<MatchingPage> {
     super.initState();
   }
 
-  void matching(User? user) {
-    if (mounted && user != null) {
+  void varInit() {
+    setState(() {
+      isLoading = false;
+      showMiniGame = false;
+      match = false;
+      accept = false;
+      partner = UserDTO.init("");
+    });
+  }
+
+  void matching() {
+    if (mounted) {
       setState(() {
         isLoading = true;
         showMiniGame = false;
       });
 
-      matchWS = WebSocketService.getInstance(user.userId, "match");
+      matchWS = WebSocketService.getInstance("match");
       matchWS.messages.listen((data) {
         try {
           matchDTO = MatchDTO.fromJson(jsonDecode(data));
-          setState(() {
-            isLoading = false;
-            showMiniGame = false;
-            match = false;
-            accept = false;
-            partner = UserDTO.init("");
-          });
+          print('📨 매칭 메세지 수신: ${matchDTO.status} ${matchDTO.user1.userId} ${matchDTO.user2.userId}');
+
           if (matchDTO.status == "매칭") {
+            varInit();
             setState(() {
               match = true;
               partner = matchDTO.user2;
+              opponent = matchDTO.user2;
             });
           } else {
             if (matchDTO.status == "매칭 승인") {
               if (mounted) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigate.pushChatting(matchDTO.user1.userId, matchDTO.user2.userId, true);
+                  Navigate.pushChatting(opponent, true);
                 });
               }
             }
+            varInit();
             matchWS.disconnect();
           }
-          print('📨 매칭 메세지 수신: ${matchDTO.status} ${matchDTO.user1.userId} ${matchDTO.user2.userId}');
         } catch (e) {
           print('❌ 메시지 파싱 실패: $e');
         }
       }, onDone: () {
-        print('🔌 WebSocket 연결 종료');
         matchWS.disconnect();
       }, onError: (error) {
         print('❌ WebSocket 오류: $error');
@@ -93,7 +99,7 @@ class _MatchingPageState extends State<MatchingPage> {
         ),
       ),
       onPressed: () {
-        matching(app_provider.Provider.of<UserProvider>(context, listen: false).user);
+        matching();
       },
       child: Text('매칭', style: TextStyle(fontSize: 20)),
     );
@@ -111,7 +117,7 @@ class _MatchingPageState extends State<MatchingPage> {
             backgroundColor: Colors.red.shade300,
           ),
           onPressed: () {
-            MatchDTO sendMatch = MatchDTO(status: "취소", user1: UserDTO.fromUser(getIt<UserProvider>().user), user2: UserDTO.init(""));
+            MatchDTO sendMatch = MatchDTO(status: "취소", user1: UserDTO.init(getIt<UserProvider>().user?.userId), user2: UserDTO.init(""));
             matchWS.sendMessage(sendMatch.toJson());
             setState(() {});
             print("취소");
@@ -146,7 +152,7 @@ class _MatchingPageState extends State<MatchingPage> {
                   backgroundColor: Colors.green,
                 ),
                 onPressed: () {
-                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: matchDTO.user1, user2: matchDTO.user2);
+                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: UserDTO.init(matchDTO.user1.userId), user2: UserDTO.init(matchDTO.user2.userId));
                   matchWS.sendMessage(sendMatch.toJson());
                   setState(() {
                     accept = true;
@@ -165,7 +171,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 ),
                 onPressed: () {
                   if (mounted) {
-                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: matchDTO.user1, user2: matchDTO.user2);
+                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: UserDTO.init(matchDTO.user1.userId), user2: UserDTO.init(matchDTO.user2.userId));
                     matchWS.sendMessage(sendMatch.toJson());
                   }
                 },
@@ -191,7 +197,7 @@ class _MatchingPageState extends State<MatchingPage> {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-    Imager? imager = app_provider.Provider.of<UserProvider>(context, listen: false).imager;
+    Imager? imager = getIt<UserProvider>().imager;
 
     return AnimatedPadding(
       padding: EdgeInsets.only(top: isLoading ? screenHeight / 10 : screenHeight / 4),
@@ -212,11 +218,6 @@ class _MatchingPageState extends State<MatchingPage> {
                 child: CircleAvatar(
                   radius: 90,
                   backgroundImage: ImageConverter.getImage(imager),
-                  // imager == null
-                  //     ? AssetImage("assets/images/BuckTanleyLogo.png")
-                  //     : (foundation.kIsWeb
-                  //         ? (imager.webImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : MemoryImage(imager.webImage!)) // 웹
-                  //         : (imager.mobileImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : FileImage(imager.mobileImage!))), // 모바일,
                   backgroundColor: Colors.transparent,
                 ),
               ),

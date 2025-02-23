@@ -97,7 +97,7 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
 
       System.out.println("📨 매칭 받은 메세지: " + matchDTO.getStatus() + " " + userId1 + " " + userId2);
 
-      userSessions.put(user1.getUserId(), session);
+      userSessions.put(userId1, session);
 
       if (matchDTO.getStatus().equals("수락")) {
         if (acceptUser.containsKey(userId2)) {

@@ -49,7 +49,7 @@ class UserProvider with ChangeNotifier {
         final messageProvider = getIt<MessageProvider>();
         await messageProvider.loadMessages(user.userId);
 
-        final wsService = WebSocketService.getInstance(user.userId, "chat");
+        final wsService = WebSocketService.getInstance("chat");
         wsService.messages.listen((data) {
           try {
             final message = Message.fromJson(jsonDecode(data));
@@ -81,7 +81,7 @@ class UserProvider with ChangeNotifier {
     final messageProvider = getIt<MessageProvider>();
     messageProvider.clearAllMessages();
 
-    final wsService = WebSocketService.getInstance(_user?.userId ?? "", "chat");
+    final wsService = WebSocketService.getInstance("chat");
     wsService.disconnect();
 
     _user = null;

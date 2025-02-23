@@ -9,17 +9,17 @@ class WebSocketService {
   static final Map<String, WebSocketService> _instances = {};
   late WebSocketChannel _channel;
   late Stream<dynamic> _broadcastStream;
-  final String userId;
+  final String userId = getIt<UserProvider>().user?.userId ?? "";
   final String type;
 
   // private 생성자
-  WebSocketService._create(this.userId, this.type) {
+  WebSocketService._create(this.type) {
     _connect();
   }
 
   // 싱글톤 인스턴스 반환
-  static WebSocketService getInstance(String userId, String type) {
-    return _instances.putIfAbsent(type, () => WebSocketService._create(userId, type));
+  static WebSocketService getInstance(String type) {
+    return _instances.putIfAbsent(type, () => WebSocketService._create(type));
   }
 
   // WebSocket 연결
