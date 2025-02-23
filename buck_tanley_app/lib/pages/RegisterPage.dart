@@ -1,14 +1,9 @@
 import 'dart:convert';
-import 'dart:io' as io;
 
-import 'package:buck_tanley_app/models/entity/User.dart';
-import 'package:buck_tanley_app/utils/Server.dart';
-import 'package:buck_tanley_app/widgets/AdBanner.dart';
-import 'package:buck_tanley_app/widgets/LogoAppBar.dart';
-import 'package:flutter/foundation.dart';
+import 'package:buck_tanley_app/SetUp.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:image_picker/image_picker.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -19,74 +14,55 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _idController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _pwController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController(); // 닉네임
   final TextEditingController _bioController = TextEditingController(); // 자기소개
   final TextEditingController _ageController = TextEditingController(); // 생년월일
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   bool selectedGender = true;
-  Uint8List? _webImage; // 웹 환경 이미지
-  io.File? _image; // 모바일 환경 이미지
+  Imager? imager;
 
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      if (kIsWeb) {
-        final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          _webImage = bytes;
-        });
-      } else {
-        setState(() {
-          _image = io.File(pickedFile.path);
-        });
-      }
-    }
+  @override
+  void dispose() {
+    _idController.dispose();
+    _pwController.dispose();
+    _nicknameController.dispose();
+    _bioController.dispose();
+    _ageController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
+    super.dispose();
   }
 
   Future<void> _registerUser() async {
     final User user = User(
-        id: null,
-        userId: _idController.text,
-        userPw: _passwordController.text,
-        name: _nicknameController.text,
-        phone: _phoneController.text,
-        email: _emailController.text,
-        image: encodeImage(),
-        introduction: _bioController.text,
-        age: int.tryParse(_ageController.text) ?? 0,
-        gender: selectedGender,
-        status: 0,
-        createdAt: DateTime.now());
+      id: null,
+      userId: _idController.text,
+      userPw: _pwController.text,
+      nickname: _nicknameController.text,
+      phone: _phoneController.text,
+      email: _emailController.text,
+      image: ImageConverter.encodeImage(imager),
+      introduction: _bioController.text,
+      gender: selectedGender,
+      age: int.tryParse(_ageController.text) ?? 0,
+      status: 0,
+      createdAt: DateTime.now(),
+    );
 
     try {
       final response = await http.post(Uri.parse('${Server.userUrl}/register'), headers: Server.header, body: jsonEncode(user.toJson()));
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
-        _showMessage("회원가입 성공: ${responseData['message']}");
+        Snack.showSnackbar("회원가입 성공: ${responseData['message']}");
       } else {
-        _showMessage("회원가입 실패: ${responseData['message']}");
+        Snack.showSnackbar("회원가입 실패: ${responseData['message']}");
       }
     } catch (e) {
-      _showMessage("회원가입 중 오류 발생 $e");
+      Snack.showSnackbar("회원가입 중 오류 발생 $e");
     }
-  }
-
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
-  String? encodeImage() {
-    if (_webImage != null) {
-      return base64Encode(_webImage!);
-    } else if (_image != null) {
-      return base64Encode(_image!.readAsBytesSync());
-    }
-    return null;
   }
 
   @override
@@ -127,18 +103,23 @@ class _RegisterPageState extends State<RegisterPage> {
                     // 프로필 이미지
                     Center(
                       child: GestureDetector(
-                        onTap: _pickImage,
+                        onTap: () async {
+                          final image = await ImageConverter.pickImage();
+                          if (mounted && image != null) {
+                            setState(() {
+                              imager = image;
+                            });
+                          }
+                        },
                         child: CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.grey[400],
-                          backgroundImage: kIsWeb
-                              ? (_webImage != null
-                                  ? MemoryImage(_webImage!) // 웹 환경 이미지
-                                  : null)
-                              : (_image != null
-                                  ? FileImage(_image!) // 모바일 환경 이미지
-                                  : null),
-                          child: (_image == null && _webImage == null)
+                          backgroundImage: imager == null
+                              ? null
+                              : (foundation.kIsWeb
+                                  ? (imager!.webImage == null ? null : MemoryImage(imager!.webImage!)) // 웹
+                                  : (imager!.mobileImage == null ? null : FileImage(imager!.mobileImage!))), // 모바일
+                          child: (imager == null || (imager!.mobileImage == null && imager!.webImage == null))
                               ? const Icon(
                                   Icons.camera_alt,
                                   size: 40,
@@ -156,7 +137,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      controller: _passwordController,
+                      controller: _pwController,
                       decoration: const InputDecoration(labelText: '비밀번호'),
                       obscureText: true,
                     ),

@@ -1,13 +1,6 @@
-// import 'dart:convert';
-
 import 'dart:convert';
 
-import 'package:buck_tanley_app/models/entity/Message.dart';
-import 'package:buck_tanley_app/services/WebSocketService.dart';
-import 'package:buck_tanley_app/utils/Room.dart';
-import 'package:buck_tanley_app/utils/Time.dart';
-import 'package:buck_tanley_app/widgets/MessageWidget.dart';
-import 'package:buck_tanley_app/provider/MessageProvider.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
@@ -106,7 +99,7 @@ class _ChattingPageState extends State<ChattingPage> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: Text(
-            Time.getFormatDate(time),
+            Time.getFormatDateS(time),
             style: const TextStyle(fontSize: 16, color: Colors.black54),
           ),
         ),

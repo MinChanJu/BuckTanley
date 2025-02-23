@@ -1,5 +1,4 @@
-import 'package:buck_tanley_app/models/entity/Message.dart';
-import 'package:buck_tanley_app/utils/Time.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
 
 class MessageWidget extends StatelessWidget {

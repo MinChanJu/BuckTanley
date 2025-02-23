@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.buck_tanley.domain.dto.LoginDTO;
+import com.example.buck_tanley.domain.dto.UserDTO;
 import com.example.buck_tanley.domain.entity.User;
 import com.example.buck_tanley.exception.CustomException;
 import com.example.buck_tanley.exception.ErrorCode;
@@ -83,18 +85,31 @@ public class UserService {
     }
 
     @Transactional
-    public User authenticalUser(String userId, String userPw) {
-        if (userId == null || userPw == null)
+    public User loginUser(LoginDTO loginDTO) {
+        if (loginDTO.getUserId() == null || loginDTO.getUserPw() == null)
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
 
-        Optional<User> findUser = userRepository.findByUserId(userId);
+        Optional<User> findUser = userRepository.findByUserId(loginDTO.getUserId());
         if (findUser.isEmpty())
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
         
         User user = findUser.get();
 
-        if (!user.getUserPw().equals(userPw)) // 실제 시스템에서는 비밀번호 암호화를 사용해야 합니다.
+        if (!user.getUserPw().equals(loginDTO.getUserPw())) // 실제 시스템에서는 비밀번호 암호화를 사용해야 합니다.
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+
+        return user;
+    }
+
+    @Transactional
+    public UserDTO getUserDTO(String userId) {
+        if (userId == null) return null;
+
+        Optional<User> findUser = userRepository.findByUserId(userId);
+        if (findUser.isEmpty())
+            return null;
+        
+        UserDTO user = new UserDTO(findUser.get());
 
         return user;
     }

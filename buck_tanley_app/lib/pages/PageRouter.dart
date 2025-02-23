@@ -1,8 +1,4 @@
-import 'package:buck_tanley_app/pages/ChatListPage.dart';
-import 'package:buck_tanley_app/pages/FreindListPage.dart';
-import 'package:buck_tanley_app/pages/MatchingPage.dart';
-import 'package:buck_tanley_app/pages/SettingPage.dart';
-import 'package:buck_tanley_app/widgets/LogoAppBar.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
 
 class PageRouter extends StatefulWidget {
@@ -17,7 +13,7 @@ class _PageRouterState extends State<PageRouter> {
   final PageController pageController = PageController();
   final List<Widget> pages = [
     MatchingPage(),
-    FreindListPage(),
+    FriendListPage(),
     ChatListPage(),
     SettingPage(),
   ];

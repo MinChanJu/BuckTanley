@@ -21,7 +21,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<User>> loginUser(@RequestBody LoginDTO loginDTO) {
-        User user = userService.authenticalUser(loginDTO.getUserId(), loginDTO.getUserPw());
+        User user = userService.loginUser(loginDTO);
         ApiResponse<User> response = new ApiResponse<>(200, true, "로그인 성공", user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

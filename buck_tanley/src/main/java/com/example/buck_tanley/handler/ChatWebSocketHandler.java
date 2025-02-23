@@ -45,12 +45,14 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
   @SuppressWarnings("null")
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
+    String userId = (String) session.getAttributes().get("userId");
     String type = (String) session.getAttributes().get("type");
     String payload = textMessage.getPayload();
     System.out.println("📨 받은 메세지 " + type + " : " + payload);
 
     try {
       Message message = objectMapper.readValue(payload, Message.class);
+      userSessions.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).put(type, session);
 
       switch (type) {
         case "chat":
@@ -98,7 +100,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
 
     if (SR != 10) {
-      System.out.println("⚠️ 수신자 세션이 잘못되었습니다 " + type + " : " + userId);
+      System.out.println("⚠️ 수신자 세션이 없습니다 " + type + " : " + userId);
       if (type.equals("random")) {
         forceCloseConnection(message.getSender(), type);
         forceCloseConnection(message.getReceiver(), type);

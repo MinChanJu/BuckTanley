@@ -1,68 +1,74 @@
-class User {
-  final int? id;
+import 'package:buck_tanley_app/models/entity/User.dart';
+
+class UserDTO {
   final String userId;
-  final String userPw;
   final String nickname;
-  final String phone;
-  final String email;
   final String? image;
   final String introduction;
   final bool gender;
   final int age;
   final int status;
-  final DateTime createdAt;
 
-  User({
-    required this.id,
+  UserDTO({
     required this.userId,
-    required this.userPw,
     required this.nickname,
-    required this.phone,
-    required this.email,
     required this.image,
     required this.introduction,
     required this.gender,
     required this.age,
     required this.status,
-    required this.createdAt,
   });
 
+  factory UserDTO.init(String userId) {
+    return UserDTO(
+      userId: userId,
+      nickname: "",
+      image: null,
+      introduction: "",
+      gender: false,
+      age: 20,
+      status: 2,
+    );
+  }
+
+  factory UserDTO.fromUser(User? user) {
+    if (user == null) {
+      return UserDTO.init("");
+    }
+    return UserDTO(
+      userId: user.userId,
+      nickname: user.nickname,
+      image: user.image,
+      introduction: user.introduction,
+      gender: user.gender,
+      age: user.age,
+      status: user.status,
+    );
+  }
+
   // JSON -> 객체 변환
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
+  factory UserDTO.fromJson(Map<String, dynamic> json) {
+    return UserDTO(
       userId: json['userId'],
-      userPw: json['userPw'],
       nickname: json['nickname'],
-      phone: json['phone'],
-      email: json['email'],
       image: json['image'],
       introduction: json['introduction'],
       gender: json['gender'],
       age: json['age'],
       status: json['status'],
-      createdAt: DateTime.parse(json['createdAt']),
     );
   }
 
   // 객체 -> JSON 변환
   Map<String, dynamic> toJson() {
-    String formatted = createdAt.toIso8601String();
-    String offset = createdAt.timeZoneOffset.inHours.toString().padLeft(2, '0');
-    String zoneSuffix = createdAt.timeZoneOffset.isNegative ? '-$offset:00' : '+$offset:00';
     return {
-      'id': id,
       'userId': userId,
-      'userPw': userPw,
       'nickname': nickname,
-      'phone': phone,
-      'email': email,
       'image': image,
       'introduction': introduction,
       'gender': gender,
       'age': age,
       'status': status,
-      'createdAt': '$formatted$zoneSuffix',
     };
   }
 }

@@ -29,8 +29,8 @@ public class User {
     @Column(name = "user_pw", columnDefinition = "text")
     private String userPw;
 
-    @Column(name = "name", columnDefinition = "text")
-    private String name;
+    @Column(name = "nickname", columnDefinition = "text")
+    private String nickname;
 
     @Column(name = "phone", columnDefinition = "text")
     private String phone;
@@ -41,14 +41,14 @@ public class User {
     @Column(name = "image", columnDefinition = "text")
     private String image;
 
-    @Column(name = "age")
-    private Short age;
+    @Column(name = "introduction", columnDefinition = "text")
+    private String introduction;
 
     @Column(name = "gender")
     private Boolean gender;
 
-    @Column(name = "introduction", columnDefinition = "text")
-    private String introduction;
+    @Column(name = "age")
+    private Short age;
 
     @Column(name = "status")
     private Short status;

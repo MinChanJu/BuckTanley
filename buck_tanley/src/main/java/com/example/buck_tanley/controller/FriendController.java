@@ -11,7 +11,7 @@ import com.example.buck_tanley.domain.entity.Friend;
 import com.example.buck_tanley.domain.entity.User;
 import com.example.buck_tanley.service.FriendService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,8 +24,8 @@ public class FriendController {
     @Autowired
     private FriendService friendService;
 
-    @GetMapping("/all")
-    public ResponseEntity<ApiResponse<List<User>>> getAllFriendsByUserId(@RequestParam("userId") String userId) {
+    @GetMapping("/{userId}")
+    public ResponseEntity<ApiResponse<List<User>>> getAllFriendsByUserId(@PathVariable("userId") String userId) {
         List<User> friends = friendService.getAllFriendsByUserId(userId);
         ApiResponse<List<User>> response = new ApiResponse<>(200, true, "친구 리스트 조회 성공", friends);
         return ResponseEntity.status(HttpStatus.OK).body(response);
