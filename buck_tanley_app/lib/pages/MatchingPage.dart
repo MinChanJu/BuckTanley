@@ -197,8 +197,6 @@ class _MatchingPageState extends State<MatchingPage> {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
-    Imager? imager = getIt<UserProvider>().imager;
-
     return AnimatedPadding(
       padding: EdgeInsets.only(top: isLoading ? screenHeight / 10 : screenHeight / 4),
       duration: Duration(seconds: 1),
@@ -217,7 +215,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 curve: Curves.easeInOut,
                 child: CircleAvatar(
                   radius: 90,
-                  backgroundImage: ImageConverter.getImage(imager),
+                  backgroundImage: ImageConverter.getImageDecode(getIt<UserProvider>().user?.image),
                   backgroundColor: Colors.transparent,
                 ),
               ),

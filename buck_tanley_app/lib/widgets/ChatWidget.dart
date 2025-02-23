@@ -1,7 +1,5 @@
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' as foundation;
-import 'package:provider/provider.dart' as app_provider;
 
 class ChatWidget extends StatelessWidget {
   final UserDTO friend;
@@ -9,10 +7,9 @@ class ChatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = app_provider.Provider.of<UserProvider>(context, listen: false).user;
+    User? user = getIt<UserProvider>().user;
     String roomId = Room.getRoomId(user?.userId ?? "", friend.userId);
-    Message? last = app_provider.Provider.of<MessageProvider>(context, listen: true).getlastForRoom(roomId);
-    Imager? imager = ImageConverter.decodeImage(friend.image);
+    Message? last = getIt<MessageProvider>().getlastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
       child: ElevatedButton(
@@ -32,13 +29,7 @@ class ChatWidget extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: imager == null
-                  ? AssetImage("assets/images/BuckTanleyLogo.png")
-                  : (foundation.kIsWeb
-                      ? (imager.webImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : MemoryImage(imager.webImage!)) // 웹
-                      : (imager.mobileImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : FileImage(imager.mobileImage!))), // 모바일,
-
-              //  AssetImage(friend.image ?? "assets/images/dinosaur1.png"),
+              backgroundImage: ImageConverter.getImageDecode(friend.image),
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),

@@ -1,7 +1,8 @@
+import 'dart:convert';
+
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MessageProvider with ChangeNotifier {
   // roomId -> List<Message>

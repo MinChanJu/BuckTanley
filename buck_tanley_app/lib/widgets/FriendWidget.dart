@@ -1,5 +1,4 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 
 class FriendWidget extends StatelessWidget {
@@ -8,7 +7,6 @@ class FriendWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Imager? imager = ImageConverter.decodeImage(friend.image);
     return Padding(
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
       child: ElevatedButton(
@@ -25,11 +23,7 @@ class FriendWidget extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: imager == null
-                  ? AssetImage("assets/images/BuckTanleyLogo.png")
-                  : (foundation.kIsWeb
-                      ? (imager.webImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : MemoryImage(imager.webImage!)) // 웹
-                      : (imager.mobileImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : FileImage(imager.mobileImage!))), // 모바일
+              backgroundImage: ImageConverter.getImageDecode(friend.image),
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),

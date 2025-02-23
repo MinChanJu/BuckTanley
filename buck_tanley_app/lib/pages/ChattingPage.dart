@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChattingPage extends StatefulWidget {
   final UserDTO opponent;
@@ -107,9 +107,28 @@ class _ChattingPageState extends State<ChattingPage> {
     );
   }
 
+  Widget buildMessage(List<Message> messages) {
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: messages.length,
+      itemBuilder: (context, index) {
+        return Column(
+          crossAxisAlignment: messages[index].sender == userId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            if (index == 0) buildDate(messages[index].createdAt),
+            MessageWidget(message: messages[index], userId: userId),
+            if (index < messages.length - 1)
+              if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: MenuWidget(userDTO: widget.opponent, imageProvider: imageProvider),
       appBar: AppBar(
         title: Center(
           child: CircleAvatar(
@@ -119,49 +138,40 @@ class _ChattingPageState extends State<ChattingPage> {
           ),
         ),
         actions: [
-          IconButton(onPressed: () {print("친구 추가");}, icon:  Icon(Icons.person_add)),
-          IconButton(onPressed: () {print("메뉴 버튼");}, icon:  Icon(Icons.menu_rounded)),
+          if (widget.random)
+            IconButton(
+              onPressed: () {
+                print("친구 추가");
+              },
+              icon: Icon(Icons.person_add),
+            ),
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+                icon: Icon(Icons.menu_rounded),
+              );
+            },
+          ),
         ],
       ),
-      body: Container(
-        color: const Color.fromARGB(255, 252, 230, 223),
-        child: widget.random
-            ? ListView.builder(
-                controller: _scrollController,
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  return Column(
-                    crossAxisAlignment: messages[index].sender == userId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                    children: [
-                      if (index == 0) buildDate(messages[index].createdAt),
-                      MessageWidget(message: messages[index], userId: userId),
-                      if (index < messages.length - 1)
-                        if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
-                    ],
-                  );
-                },
-              )
-            : app_provider.Consumer<MessageProvider>(
-                builder: (context, messageProvider, child) {
-                  final messages = messageProvider.getMessagesForRoom(roomId);
-                  WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        crossAxisAlignment: messages[index].sender == userId ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          if (index == 0) buildDate(messages[index].createdAt),
-                          MessageWidget(message: messages[index], userId: userId),
-                          if (index < messages.length - 1)
-                            if (Time.compareTime(messages[index].createdAt, messages[index + 1].createdAt) == 1) buildDate(messages[index + 1].createdAt),
-                        ],
-                      );
+      body: Stack(
+        children: [
+          Container(
+            color: const Color.fromARGB(255, 252, 230, 223),
+            child: widget.random
+                ? buildMessage(messages)
+                : Consumer<MessageProvider>(
+                    builder: (context, messageProvider, child) {
+                      final messages = messageProvider.getMessagesForRoom(roomId);
+                      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+                      return buildMessage(messages);
                     },
-                  );
-                },
-              ),
+                  ),
+          ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(10),

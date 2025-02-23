@@ -8,11 +8,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class UserProvider with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   User? _user;
-  Imager? _imager;
   LoginDTO? _loginDTO;
 
   User? get user => _user;
-  Imager? get imager => _imager;
   LoginDTO? get loginDTO => _loginDTO;
   bool get isLogin => _user != null;
 
@@ -41,7 +39,6 @@ class UserProvider with ChangeNotifier {
         final User user = apiResponse.data!;
 
         _user = user;
-        _imager = ImageConverter.decodeImage(user.image);
         _loginDTO = loginDTO;
         await _storage.write(key: 'loginDTO', value: jsonEncode(_loginDTO!.toJson()));
         notifyListeners();
