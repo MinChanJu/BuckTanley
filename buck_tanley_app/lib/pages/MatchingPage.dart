@@ -1,10 +1,6 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/models/MatchDTO.dart';
-import 'package:buck_tanley_app/pages/ChattingPage.dart';
-import 'package:buck_tanley_app/provider/UserProvider.dart';
-import 'package:buck_tanley_app/services/WebSocketService.dart';
-import 'package:buck_tanley_app/widgets/MiniGameWidget.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:provider/provider.dart' as app_provider;
 import 'package:flutter/material.dart';
 
@@ -20,66 +16,57 @@ class _MatchingPageState extends State<MatchingPage> {
   bool showMiniGame = false;
   bool match = false;
   bool accept = false;
-  String partner = "";
-  late AssetImage _mySelf, _opponent;
+  UserDTO partner = UserDTO.init("");
   late WebSocketService matchWS;
   late MatchDTO matchDTO;
 
   @override
   void initState() {
     super.initState();
-    _mySelf = AssetImage('assets/images/BuckTanleyLogo.png');
-    _opponent = AssetImage('assets/images/dinosaur1.png');
   }
 
-  void matching(String? userId) {
-    if (mounted && userId != null) {
+  void matching(User? user) {
+    if (mounted && user != null) {
       setState(() {
         isLoading = true;
         showMiniGame = false;
       });
 
-      matchWS = WebSocketService.getInstance(userId, "match");
+      matchWS = WebSocketService.getInstance(user.userId, "match");
       matchWS.messages.listen((data) {
         try {
           matchDTO = MatchDTO.fromJson(jsonDecode(data));
-          if (matchDTO.status) {
-            if (mounted) {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ChattingPage(sender: matchDTO.userId1, receiver: matchDTO.userId2, random: true)),
-                );
-              });
-            }
+          setState(() {
+            isLoading = false;
+            showMiniGame = false;
+            match = false;
+            accept = false;
+            partner = UserDTO.init("");
+          });
+          if (matchDTO.status == "매칭") {
             setState(() {
-              isLoading = false;
-              showMiniGame = false;
-              match = false;
-              accept = false;
-              partner = "";
-            });
-            matchWS.disconnect();
-          } else if (isLoading) {
-            setState(() {
-              isLoading = false;
-              showMiniGame = false;
               match = true;
-              accept = false;
-              partner = matchDTO.userId2;
+              partner = matchDTO.user2;
             });
           } else {
-            setState(() {
-              match = false;
-              accept = false;
-              partner = "";
-            });
+            if (matchDTO.status == "매칭 승인") {
+              if (mounted) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  Navigate.pushChatting(matchDTO.user1.userId, matchDTO.user2.userId, true);
+                });
+              }
+            }
             matchWS.disconnect();
           }
-          print('📨 매칭 메세지 수신: ${matchDTO.toJson()}');
+          print('📨 매칭 메세지 수신: ${matchDTO.status} ${matchDTO.user1.userId} ${matchDTO.user2.userId}');
         } catch (e) {
           print('❌ 메시지 파싱 실패: $e');
         }
+      }, onDone: () {
+        print('🔌 WebSocket 연결 종료');
+        matchWS.disconnect();
+      }, onError: (error) {
+        print('❌ WebSocket 오류: $error');
       });
 
       Future.delayed(Duration(seconds: 1), () {
@@ -106,7 +93,7 @@ class _MatchingPageState extends State<MatchingPage> {
         ),
       ),
       onPressed: () {
-        matching(app_provider.Provider.of<UserProvider>(context, listen: false).token);
+        matching(app_provider.Provider.of<UserProvider>(context, listen: false).user);
       },
       child: Text('매칭', style: TextStyle(fontSize: 20)),
     );
@@ -115,7 +102,22 @@ class _MatchingPageState extends State<MatchingPage> {
   Widget during() {
     return Column(
       children: [
-        Text('매칭 중...', style: TextStyle(fontSize: 20)),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            backgroundColor: Colors.red.shade300,
+          ),
+          onPressed: () {
+            MatchDTO sendMatch = MatchDTO(status: "취소", user1: UserDTO.fromUser(getIt<UserProvider>().user), user2: UserDTO.init(""));
+            matchWS.sendMessage(sendMatch.toJson());
+            setState(() {});
+            print("취소");
+          },
+          child: Text("매칭 취소", style: TextStyle(color: Colors.white, fontSize: 20)),
+        ),
         AnimatedOpacity(
           opacity: showMiniGame ? 1.0 : 0.0, // 서서히 나타나기
           duration: const Duration(seconds: 1), // 애니메이션 지속 시간
@@ -129,7 +131,7 @@ class _MatchingPageState extends State<MatchingPage> {
   Widget after() {
     return Column(
       children: [
-        Text(partner, style: TextStyle(fontSize: 30)),
+        Text(partner.nickname, style: TextStyle(fontSize: 30)),
         SizedBox(height: 20),
         if (!accept)
           Row(
@@ -144,7 +146,7 @@ class _MatchingPageState extends State<MatchingPage> {
                   backgroundColor: Colors.green,
                 ),
                 onPressed: () {
-                  MatchDTO sendMatch = MatchDTO(status: true, userId1: matchDTO.userId1, userId2: matchDTO.userId2);
+                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: matchDTO.user1, user2: matchDTO.user2);
                   matchWS.sendMessage(sendMatch.toJson());
                   setState(() {
                     accept = true;
@@ -163,7 +165,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 ),
                 onPressed: () {
                   if (mounted) {
-                    MatchDTO sendMatch = MatchDTO(status: false, userId1: matchDTO.userId1, userId2: matchDTO.userId2);
+                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: matchDTO.user1, user2: matchDTO.user2);
                     matchWS.sendMessage(sendMatch.toJson());
                   }
                 },
@@ -189,6 +191,7 @@ class _MatchingPageState extends State<MatchingPage> {
   @override
   Widget build(BuildContext context) {
     double screenHeight = MediaQuery.of(context).size.height;
+    Imager? imager = app_provider.Provider.of<UserProvider>(context, listen: false).imager;
 
     return AnimatedPadding(
       padding: EdgeInsets.only(top: isLoading ? screenHeight / 10 : screenHeight / 4),
@@ -208,7 +211,12 @@ class _MatchingPageState extends State<MatchingPage> {
                 curve: Curves.easeInOut,
                 child: CircleAvatar(
                   radius: 90,
-                  backgroundImage: _mySelf,
+                  backgroundImage: ImageConverter.getImage(imager),
+                  // imager == null
+                  //     ? AssetImage("assets/images/BuckTanleyLogo.png")
+                  //     : (foundation.kIsWeb
+                  //         ? (imager.webImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : MemoryImage(imager.webImage!)) // 웹
+                  //         : (imager.mobileImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : FileImage(imager.mobileImage!))), // 모바일,
                   backgroundColor: Colors.transparent,
                 ),
               ),
@@ -218,7 +226,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 curve: Curves.easeInOut,
                 child: CircleAvatar(
                   radius: 90,
-                  backgroundImage: _opponent,
+                  backgroundImage: ImageConverter.getImageDecode(partner.image),
                   backgroundColor: Colors.transparent,
                 ),
               ),

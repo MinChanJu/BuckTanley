@@ -12,10 +12,7 @@ class ApiResponse<T> {
   });
 
   // 🔍 단일 객체 변환
-  factory ApiResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(Object?) fromJsonT,
-  ) {
+  factory ApiResponse.fromJson(Map<String, dynamic> json, T Function(Object?) fromJsonT) {
     return ApiResponse<T>(
       status: json['status'] as int,
       success: json['success'] as bool,
@@ -25,10 +22,7 @@ class ApiResponse<T> {
   }
 
   // 🔍 리스트 변환 (반환 타입을 `ApiResponse<List<T>>`로 변경)
-  static ApiResponse<List<T>> fromJsonList<T>(
-    Map<String, dynamic> json,
-    T Function(Map<String, dynamic>) fromJsonT,
-  ) {
+  static ApiResponse<List<T>> fromJsonList<T>(Map<String, dynamic> json, T Function(Map<String, dynamic>) fromJsonT) {
     if (json['data'] != null && json['data'] is List) {
       final List<dynamic> jsonData = json['data'];
       final List<T> list = jsonData.map((item) => fromJsonT(item as Map<String, dynamic>)).toList();

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/utils/Server.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/html.dart';
 
@@ -43,7 +43,7 @@ class WebSocketService {
   void sendMessage(Map<String, dynamic> json) {
     final jsonString = jsonEncode(json);
     _channel.sink.add(jsonString);
-    print('💬 WebSocket $type 메세지 전송: $userId $jsonString');
+    print('💬 WebSocket $type 메세지 전송: $userId');
   }
 
   // WebSocket 연결 해제

@@ -1,11 +1,4 @@
-import 'package:buck_tanley_app/models/Setting.dart';
-import 'package:buck_tanley_app/pages/settings/LogoutTab.dart';
-import 'package:buck_tanley_app/widgets/AdBanner.dart';
-import 'package:buck_tanley_app/pages/settings/MyPageTab.dart';
-import 'package:buck_tanley_app/pages/settings/NotificationTab.dart';
-import 'package:buck_tanley_app/pages/settings/SecurityTab.dart';
-import 'package:buck_tanley_app/pages/settings/HelpSupportTab.dart';
-import 'package:buck_tanley_app/pages/settings/AppInfoTab.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
 
 class SettingPage extends StatefulWidget {

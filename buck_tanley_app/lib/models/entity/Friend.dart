@@ -1,11 +1,11 @@
-class Freind {
+class Friend {
   final int? id;
   final String userId1;
   final String userId2;
   final int status;
   final DateTime createdAt;
 
-  Freind({
+  Friend({
     required this.id,
     required this.userId1,
     required this.userId2,
@@ -14,8 +14,8 @@ class Freind {
   });
 
   // JSON -> 객체 변환
-  factory Freind.fromJson(Map<String, dynamic> json) {
-    return Freind(
+  factory Friend.fromJson(Map<String, dynamic> json) {
+    return Friend(
       id: json['id'],
       userId1: json['userId1'],
       userId2: json['userId2'],

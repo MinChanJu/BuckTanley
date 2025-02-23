@@ -1,22 +1,17 @@
-import 'package:buck_tanley_app/pages/LoginPage.dart';
-import 'package:buck_tanley_app/pages/PageRouter.dart';
-import 'package:buck_tanley_app/provider/MessageProvider.dart';
-import 'package:buck_tanley_app/provider/UserProvider.dart';
-import 'package:provider/provider.dart' as app_provider;
+import 'package:buck_tanley_app/SetUp.dart';
+import 'package:provider/provider.dart'; // as app_provider;
 import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final messageProvider = MessageProvider();
-  final userProvider = UserProvider();
-  await userProvider.loadUser();
-  if (userProvider.isLogin) await messageProvider.loadMessages(userProvider.token!);
-  
+
+  await setup();
+
   runApp(
-    app_provider.MultiProvider(
+    MultiProvider(
       providers: [
-        app_provider.ChangeNotifierProvider(create: (_) => messageProvider),
-        app_provider.ChangeNotifierProvider(create: (_) => userProvider),
+        ChangeNotifierProvider<UserProvider>.value(value: getIt<UserProvider>()),
+        ChangeNotifierProvider<MessageProvider>.value(value: getIt<MessageProvider>()),
       ],
       child: const MyApp(),
     ),
@@ -31,7 +26,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-
   @override
   void initState() {
     super.initState();
@@ -55,19 +49,18 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return app_provider.ChangeNotifierProvider(
-      create: (context) => UserProvider()..loadUser(),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: app_provider.Consumer<UserProvider>(
-          builder: (context, userProvider, _) {
-            if (userProvider.isLogin) {
-              return const PageRouter();
-            } else {
-              return const LoginPage();
-            }
-          },
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: "BuckTanley",
+      navigatorKey: getIt<GlobalKey<NavigatorState>>(),
+      home: Consumer<UserProvider>(
+        builder: (context, userProvider, _) {
+          if (userProvider.isLogin) {
+            return const PageRouter();
+          } else {
+            return const LoginPage();
+          }
+        },
       ),
     );
   }

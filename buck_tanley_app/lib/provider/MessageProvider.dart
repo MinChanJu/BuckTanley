@@ -1,10 +1,7 @@
-import 'package:buck_tanley_app/models/ApiResponse.dart';
-import 'package:buck_tanley_app/utils/Room.dart';
-import 'package:buck_tanley_app/utils/Server.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:buck_tanley_app/models/entity/Message.dart';
 
 class MessageProvider with ChangeNotifier {
   // roomId -> List<Message>
@@ -42,10 +39,10 @@ class MessageProvider with ChangeNotifier {
     return _roomMessages[roomId] ?? [];
   }
 
-  String getlastForRoom(String roomId) {
+  Message? getlastForRoom(String roomId) {
     List<Message> messages = _roomMessages[roomId] ?? [];
-    if (messages.isEmpty) return "";
-    return messages[messages.length - 1].content;
+    if (messages.isEmpty) return null;
+    return messages[messages.length - 1];
   }
 
   // 특정 방에 메시지 추가

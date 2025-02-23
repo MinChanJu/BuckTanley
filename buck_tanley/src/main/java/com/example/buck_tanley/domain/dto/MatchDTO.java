@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 public class MatchDTO {
-  private boolean status;
-  private String userId1;
-  private String userId2;
+  private String status;
+  private UserDTO user1;
+  private UserDTO user2;
 }

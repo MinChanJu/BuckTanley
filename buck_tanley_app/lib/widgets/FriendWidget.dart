@@ -1,12 +1,14 @@
-import 'package:buck_tanley_app/models/entity/Freind.dart';
+import 'package:buck_tanley_app/SetUp.dart';
+import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 
-class FreindWidget extends StatelessWidget {
-  final Freind freind;
-  const FreindWidget({super.key, required this.freind});
+class FriendWidget extends StatelessWidget {
+  final UserDTO friend;
+  const FriendWidget({super.key, required this.friend});
 
   @override
   Widget build(BuildContext context) {
+    Imager? imager = ImageConverter.decodeImage(friend.image);
     return Padding(
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
       child: ElevatedButton(
@@ -23,12 +25,16 @@ class FreindWidget extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: AssetImage(freind.id == null ? "assets/images/dinosaur1.png" : freind.userId1),
+              backgroundImage: imager == null
+                  ? AssetImage("assets/images/BuckTanleyLogo.png")
+                  : (foundation.kIsWeb
+                      ? (imager.webImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : MemoryImage(imager.webImage!)) // 웹
+                      : (imager.mobileImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : FileImage(imager.mobileImage!))), // 모바일
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),
             Text(
-              freind.userId2,
+              friend.nickname,
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -37,7 +43,7 @@ class FreindWidget extends StatelessWidget {
             SizedBox(width: 20),
             Expanded(
               child: Text(
-                freind.userId1,
+                friend.introduction,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
@@ -48,9 +54,9 @@ class FreindWidget extends StatelessWidget {
             ),
             () {
               var color = Colors.grey;
-              if (freind.status == 1) color = Colors.green;
-              if (freind.status == 2) color = Colors.blue;
-              if (freind.status == 3) color = Colors.red;
+              if (friend.status == 1) color = Colors.green;
+              if (friend.status == 2) color = Colors.blue;
+              if (friend.status == 3) color = Colors.red;
               return Container(
                 width: 10,
                 height: 10,
