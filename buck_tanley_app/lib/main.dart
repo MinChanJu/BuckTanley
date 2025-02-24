@@ -1,4 +1,5 @@
 import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/provider/FriendProvider.dart';
 import 'package:provider/provider.dart'; // as app_provider;
 import 'package:flutter/material.dart';
 
@@ -12,6 +13,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider<UserProvider>.value(value: getIt<UserProvider>()),
         ChangeNotifierProvider<MessageProvider>.value(value: getIt<MessageProvider>()),
+        ChangeNotifierProvider<FriendProvider>(create: (context) => FriendProvider()),
       ],
       child: const MyApp(),
     ),
