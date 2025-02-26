@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/html.dart';
+import 'package:buck_tanley_app/services/WebSocketServiceMobile.dart' if (dart.library.html) 'package:buck_tanley_app/services/WebSocketServiceWeb.dart';
 
 class WebSocketService {
   // 사용자별 WebSocket 인스턴스를 관리할 싱글톤 Map
@@ -23,12 +23,10 @@ class WebSocketService {
   }
 
   // WebSocket 연결
-  void _connect() {
+  void _connect() async {
     try {
-      String url = "";
-      if (type == "chat" || type == "random") url = Server.chatWS;
-      if (type == "match") url = Server.matchWS;
-      _channel = HtmlWebSocketChannel.connect(Uri.parse('$url?userId=$userId&type=$type'));
+      String url = Server.wsUrl(userId, type);
+      _channel = WebSocketServiceFactory.connect(url);
       _broadcastStream = _channel.stream.asBroadcastStream();
       print('🔌 WebSocket $type 연결 성공: $userId');
     } catch (e) {

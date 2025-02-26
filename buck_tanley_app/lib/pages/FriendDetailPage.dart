@@ -1,5 +1,4 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:buck_tanley_app/widgets/ImageWidget.dart';
 import 'package:flutter/material.dart';
 
 class FriendDetailPage extends StatelessWidget {
