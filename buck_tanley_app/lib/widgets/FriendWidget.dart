@@ -7,6 +7,7 @@ class FriendWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ImageProvider friendImage = ImageConverter.getImageDecode(friend.image);
     return Padding(
       padding: const EdgeInsets.only(top: 10, left: 10, right: 10),
       child: ElevatedButton(
@@ -18,12 +19,14 @@ class FriendWidget extends StatelessWidget {
           ),
           backgroundColor: Colors.white,
         ),
-        onPressed: () {},
+        onPressed: () {
+          Navigate.pushFriendDetail(friend, friendImage);
+        },
         child: Row(
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: ImageConverter.getImageDecode(friend.image),
+              backgroundImage: friendImage,
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),

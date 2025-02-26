@@ -4,14 +4,13 @@ import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await setup();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<UserProvider>.value(value: getIt<UserProvider>()),
-        ChangeNotifierProvider<MessageProvider>.value(value: getIt<MessageProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<UserProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<MessageProvider>()),
       ],
       child: const MyApp(),
     ),

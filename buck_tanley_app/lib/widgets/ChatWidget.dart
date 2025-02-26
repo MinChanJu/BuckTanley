@@ -1,5 +1,6 @@
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChatWidget extends StatelessWidget {
   final UserDTO friend;
@@ -7,9 +8,10 @@ class ChatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = getIt<UserProvider>().user;
-    String roomId = Room.getRoomId(user?.userId ?? "", friend.userId);
-    Message? last = getIt<MessageProvider>().getlastForRoom(roomId);
+    ImageProvider friendImage = ImageConverter.getImageDecode(friend.image);
+    final messageProvider = context.watch<MessageProvider>();
+    final roomId = Room.getRoomId(getIt<UserProvider>().userId, friend.userId);
+    Message? last = messageProvider.getlastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
       child: ElevatedButton(
@@ -22,14 +24,14 @@ class ChatWidget extends StatelessWidget {
           backgroundColor: Colors.white,
         ),
         onPressed: () {
-          Navigate.pushChatting(friend, false);
+          Navigate.pushChatting(friend, friendImage, false);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: ImageConverter.getImageDecode(friend.image),
+              backgroundImage: friendImage,
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),

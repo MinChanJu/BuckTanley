@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ChattingPage extends StatefulWidget {
-  final UserDTO opponent;
+  final UserDTO partner;
+  final ImageProvider partnerImage;
   final bool random;
-  const ChattingPage({super.key, required this.opponent, required this.random});
+  const ChattingPage({super.key, required this.partner, required this.partnerImage, required this.random});
 
   @override
   State<ChattingPage> createState() => _ChattingPageState();
@@ -17,7 +18,6 @@ class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
   final String userId = getIt<UserProvider>().user!.userId;
-  late ImageProvider imageProvider;
   late WebSocketService wsService;
   final List<Message> messages = [];
   late String roomId;
@@ -49,8 +49,7 @@ class _ChattingPageState extends State<ChattingPage> {
         print('❌ WebSocket random 오류: $error');
       });
     }
-    roomId = Room.getRoomId(userId, widget.opponent.userId);
-    imageProvider = ImageConverter.getImageDecode(widget.opponent.image);
+    roomId = Room.getRoomId(userId, widget.partner.userId);
   }
 
   @override
@@ -58,7 +57,7 @@ class _ChattingPageState extends State<ChattingPage> {
     _scrollController.dispose();
     _textController.dispose();
     if (widget.random) {
-      wsService.sendMessage(Message(id: 1, content: "text", sender: userId, receiver: widget.opponent.userId, createdAt: DateTime.now()).toJson());
+      wsService.sendMessage(Message(id: 1, content: "text", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now()).toJson());
       wsService.disconnect();
     }
     super.dispose();
@@ -79,7 +78,65 @@ class _ChattingPageState extends State<ChattingPage> {
     _textController.clear();
     if (text.isEmpty) return;
 
-    wsService.sendMessage(Message(id: null, content: text, sender: userId, receiver: widget.opponent.userId, createdAt: DateTime.now()).toJson());
+    Message sendMessage = Message(id: null, content: text, sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+    wsService.sendMessage(sendMessage.toJson());
+  }
+
+  void _addFriend() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('친구 추가'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('이 사람을 친구 추가 하시겠습니까?'),
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  Navigate.pushFriendDetail(widget.partner, widget.partnerImage);
+                },
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 20,
+                      backgroundImage: widget.partnerImage,
+                      backgroundColor: const Color.fromARGB(255, 209, 209, 209),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(widget.partner.nickname),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                print("친구 추가 취소");
+              },
+              child: const Text('취소'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Message sendMessage = Message(id: 2, content: "친구 추가", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+                print("친구 추가 요청 : ${sendMessage.toJson()}");
+                wsService.sendMessage(sendMessage.toJson());
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('친구 추가 요청을 보냈습니다.')),
+                );
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
+    );
+
   }
 
   @override
@@ -128,21 +185,24 @@ class _ChattingPageState extends State<ChattingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: MenuWidget(userDTO: widget.opponent, imageProvider: imageProvider),
+      endDrawer: MenuWidget(userDTO: widget.partner, imageProvider: widget.partnerImage),
       appBar: AppBar(
         title: Center(
-          child: CircleAvatar(
-            radius: 20,
-            backgroundImage: imageProvider,
-            backgroundColor: const Color.fromARGB(255, 209, 209, 209),
+          child: TextButton(
+            onPressed: () {
+              Navigate.pushFriendDetail(widget.partner, widget.partnerImage);
+            },
+            child: CircleAvatar(
+              radius: 20,
+              backgroundImage: widget.partnerImage,
+              backgroundColor: const Color.fromARGB(255, 209, 209, 209),
+            ),
           ),
         ),
         actions: [
           if (widget.random)
             IconButton(
-              onPressed: () {
-                print("친구 추가");
-              },
+              onPressed: _addFriend,
               icon: Icon(Icons.person_add),
             ),
           Builder(

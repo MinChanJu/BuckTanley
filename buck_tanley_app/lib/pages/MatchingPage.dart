@@ -15,15 +15,10 @@ class _MatchingPageState extends State<MatchingPage> {
   bool showMiniGame = false;
   bool match = false;
   bool accept = false;
-  UserDTO partner = UserDTO.init("");
-  UserDTO opponent = UserDTO.init("");
+  UserDTO partner = UserDTO.init(null);
+  ImageProvider partnerImage = ImageConverter.getImage(null);
   late WebSocketService matchWS;
   late MatchDTO matchDTO;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void varInit() {
     setState(() {
@@ -31,17 +26,13 @@ class _MatchingPageState extends State<MatchingPage> {
       showMiniGame = false;
       match = false;
       accept = false;
-      partner = UserDTO.init("");
+      partner = UserDTO.init(null);
+      partnerImage = ImageConverter.getImageDecode(null);
     });
   }
 
   void matching() {
     if (mounted) {
-      setState(() {
-        isLoading = true;
-        showMiniGame = false;
-      });
-
       matchWS = WebSocketService.getInstance("match");
       matchWS.messages.listen((data) {
         try {
@@ -53,18 +44,21 @@ class _MatchingPageState extends State<MatchingPage> {
             setState(() {
               match = true;
               partner = matchDTO.user2;
-              opponent = matchDTO.user2;
+              partnerImage = ImageConverter.getImageDecode(partner.image);
             });
           } else {
             if (matchDTO.status == "매칭 승인") {
               if (mounted) {
                 WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigate.pushChatting(opponent, true);
+                  Navigate.pushChatting(partner, partnerImage, true);
+                  varInit();
+                  matchWS.disconnect();
                 });
               }
+            } else {
+              varInit();
+              matchWS.disconnect();
             }
-            varInit();
-            matchWS.disconnect();
           }
         } catch (e) {
           print('❌ 메시지 파싱 실패: $e');
@@ -73,6 +67,11 @@ class _MatchingPageState extends State<MatchingPage> {
         matchWS.disconnect();
       }, onError: (error) {
         print('❌ WebSocket 오류: $error');
+      });
+
+      setState(() {
+        isLoading = true;
+        showMiniGame = false;
       });
 
       Future.delayed(Duration(seconds: 1), () {
@@ -117,10 +116,8 @@ class _MatchingPageState extends State<MatchingPage> {
             backgroundColor: Colors.red.shade300,
           ),
           onPressed: () {
-            MatchDTO sendMatch = MatchDTO(status: "취소", user1: UserDTO.init(getIt<UserProvider>().user?.userId), user2: UserDTO.init(""));
+            MatchDTO sendMatch = MatchDTO(status: "취소", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(null));
             matchWS.sendMessage(sendMatch.toJson());
-            setState(() {});
-            print("취소");
           },
           child: Text("매칭 취소", style: TextStyle(color: Colors.white, fontSize: 20)),
         ),
@@ -143,6 +140,7 @@ class _MatchingPageState extends State<MatchingPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
@@ -152,7 +150,7 @@ class _MatchingPageState extends State<MatchingPage> {
                   backgroundColor: Colors.green,
                 ),
                 onPressed: () {
-                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: UserDTO.init(matchDTO.user1.userId), user2: UserDTO.init(matchDTO.user2.userId));
+                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(partner.userId));
                   matchWS.sendMessage(sendMatch.toJson());
                   setState(() {
                     accept = true;
@@ -171,7 +169,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 ),
                 onPressed: () {
                   if (mounted) {
-                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: UserDTO.init(matchDTO.user1.userId), user2: UserDTO.init(matchDTO.user2.userId));
+                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(partner.userId));
                     matchWS.sendMessage(sendMatch.toJson());
                   }
                 },
@@ -215,7 +213,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 curve: Curves.easeInOut,
                 child: CircleAvatar(
                   radius: 90,
-                  backgroundImage: ImageConverter.getImageDecode(getIt<UserProvider>().user?.image),
+                  backgroundImage: getIt<UserProvider>().userImage,
                   backgroundColor: Colors.transparent,
                 ),
               ),
@@ -225,7 +223,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 curve: Curves.easeInOut,
                 child: CircleAvatar(
                   radius: 90,
-                  backgroundImage: ImageConverter.getImageDecode(partner.image),
+                  backgroundImage: partnerImage,
                   backgroundColor: Colors.transparent,
                 ),
               ),

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -9,9 +9,12 @@ class UserProvider with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   User? _user;
   LoginDTO? _loginDTO;
+  ImageProvider _userImage = ImageConverter.getImage(null);
 
   User? get user => _user;
   LoginDTO? get loginDTO => _loginDTO;
+  ImageProvider get userImage => _userImage;
+  String get userId => _user?.userId ?? "";
   bool get isLogin => _user != null;
 
   Future<void> loadUser() async {
@@ -40,6 +43,7 @@ class UserProvider with ChangeNotifier {
 
         _user = user;
         _loginDTO = loginDTO;
+        _userImage = ImageConverter.getImageDecode(user.image);
         await _storage.write(key: 'loginDTO', value: jsonEncode(_loginDTO!.toJson()));
         notifyListeners();
 
@@ -84,5 +88,7 @@ class UserProvider with ChangeNotifier {
     _user = null;
     await _storage.delete(key: 'loginDTO');
     notifyListeners();
+
+    print("로그아웃 성공");
   }
 }

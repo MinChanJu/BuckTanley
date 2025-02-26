@@ -21,6 +21,7 @@ export 'package:buck_tanley_app/pages/settings/SecurityTab.dart';
 
 export 'package:buck_tanley_app/pages/ChatListPage.dart';
 export 'package:buck_tanley_app/pages/ChattingPage.dart';
+export 'package:buck_tanley_app/pages/FriendDetailPage.dart';
 export 'package:buck_tanley_app/pages/FriendListPage.dart';
 export 'package:buck_tanley_app/pages/HomePage.dart';
 export 'package:buck_tanley_app/pages/LoginPage.dart';
@@ -48,6 +49,7 @@ export 'package:buck_tanley_app/utils/Time.dart';
 export 'package:buck_tanley_app/widgets/AdBanner.dart';
 export 'package:buck_tanley_app/widgets/ChatWidget.dart';
 export 'package:buck_tanley_app/widgets/FriendWidget.dart';
+export 'package:buck_tanley_app/widgets/ImageWidget.dart';
 export 'package:buck_tanley_app/widgets/LogoAppBar.dart';
 export 'package:buck_tanley_app/widgets/MenuWidget.dart';
 export 'package:buck_tanley_app/widgets/MessageWidget.dart';

@@ -1,4 +1,5 @@
 import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/utils/Test.dart';
 import 'package:flutter/material.dart';
 
 class FriendListPage extends StatefulWidget {
@@ -10,9 +11,9 @@ class FriendListPage extends StatefulWidget {
 
 class _FriendListPageState extends State<FriendListPage> {
   List<UserDTO> friends = [
-    UserDTO(userId: "abc", nickname: "안토니", image: "", introduction: "안녕하세요", gender: false, age: 19, status: 0),
-    UserDTO(userId: "def", nickname: "다니엘", image: "", introduction: "조용히 해", gender: true, age: 20, status: 1),
-    UserDTO(userId: "test", nickname: "테스트", image: "", introduction: "테스트 계정", gender: true, age: 23, status: 2),
+    UserDTO(userId: "test00", nickname: "이미지 테스트", image: Test.testoo, introduction: "이미지 소개중..", gender: true, age: 30, status: 0),
+    UserDTO(userId: "test11", nickname: "테스트11", image: Test.testll, introduction: "테스트 계정", gender: false, age: 25, status: 0),
+    UserDTO(userId: "test", nickname: "나임", image: "", introduction: "계정", gender: true, age: 23, status: 2),
     UserDTO(userId: "ab", nickname: "기본", image: "", introduction: "ㄴ우힌웊", gender: false, age: 32, status: 3),
     UserDTO(userId: "sdbe", nickname: "조용", image: "", introduction: "ㄴㅇㅁㅍㄴㅇㅁㅍ휴", gender: true, age: 21, status: 0),
     UserDTO(userId: "wfew", nickname: "심심", image: "", introduction: "ㄴ윰ㄴㅇ", gender: true, age: 54, status: 1),
@@ -22,6 +23,12 @@ class _FriendListPageState extends State<FriendListPage> {
     UserDTO(userId: "xnj", nickname: "아러후", image: "", introduction: " ㄹㅇ ㅎㄹ", gender: false, age: 24, status: 3),
     UserDTO(userId: "fob", nickname: "무래하", image: "", introduction: "ㄹㅎ ㅇㄹ ㅇㄴㄴㅇ", gender: true, age: 22, status: 3),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    friends.sort((a, b) => a.nickname.compareTo(b.nickname));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +51,7 @@ class _FriendListPageState extends State<FriendListPage> {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundImage: ImageConverter.getImageDecode(getIt<UserProvider>().user?.image),
+                backgroundImage: getIt<UserProvider>().userImage,
                 backgroundColor: Colors.grey[400],
               ),
               SizedBox(width: 20),

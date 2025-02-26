@@ -64,9 +64,11 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
           if (message.getId() == null) { // 메세지 전송
             sendMessage(message, 0, type);
             sendMessage(message, 1, type);
-          } else { // 연결 종료
+          } else if (message.getId() == 1) { // 연결 종료
             forceCloseConnection(message.getSender(), type);
             forceCloseConnection(message.getReceiver(), type);
+          } else if (message.getId() == 2) { // 친구 추가
+            System.err.println("친구 추가 : " + message.getSender() + " -> " + message.getReceiver());
           }
           break;
         default:

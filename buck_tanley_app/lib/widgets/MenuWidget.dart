@@ -14,10 +14,13 @@ class _MenuWidgetState extends State<MenuWidget> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      width: MediaQuery.of(context).size.width * 0.7,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
+          Container(
+            height: MediaQuery.of(context).size.height * 0.4,
+            padding: EdgeInsets.all(15),
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 209, 209, 209),
               image: DecorationImage(
@@ -30,33 +33,7 @@ class _MenuWidgetState extends State<MenuWidget> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) {
-                    return Dialog(
-                      backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16.0), // Dialog의 둥근 테두리
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16.0),
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.8, // 화면 너비의 80%
-                          height: MediaQuery.of(context).size.height * 0.6, // 화면 높이의 60%
-                          child: InteractiveViewer(
-                            panEnabled: true,
-                            minScale: 1.0,
-                            maxScale: 3.0,
-                            child: AspectRatio(
-                              aspectRatio: 1.0,
-                              child: Image(
-                                image: widget.imageProvider,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
+                  builder: (context) => ImageWidget(imageProvider: widget.imageProvider),
                 );
               },
               child: OutlineTextWidget(
@@ -90,6 +67,10 @@ class _MenuWidgetState extends State<MenuWidget> {
             leading: Text("상태"),
             title: Text(widget.userDTO.status.toString()),
             onTap: () {},
+          ),
+          ListTile(
+            title: Text("취소"),
+            onTap: () {Navigator.of(context).pop();},
           ),
         ],
       ),
