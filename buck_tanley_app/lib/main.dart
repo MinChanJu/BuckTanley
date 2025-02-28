@@ -1,17 +1,16 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:provider/provider.dart'; // as app_provider;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  await setup();
+  setup();
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider<UserProvider>.value(value: getIt<UserProvider>()),
-        ChangeNotifierProvider<MessageProvider>.value(value: getIt<MessageProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<UserProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<MessageProvider>()),
       ],
       child: const MyApp(),
     ),

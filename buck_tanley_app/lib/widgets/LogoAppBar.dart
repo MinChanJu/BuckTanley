@@ -11,8 +11,7 @@ class LogoAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       title: SizedBox(
         height: 50,
-        child: Image.asset('assets/images/BuckTanleyLogo.png',
-            fit: BoxFit.contain),
+        child: Image.asset('assets/images/BuckTanleyLogo.png', fit: BoxFit.contain),
       ),
     );
   }

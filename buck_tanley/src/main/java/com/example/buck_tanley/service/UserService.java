@@ -2,7 +2,6 @@ package com.example.buck_tanley.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.buck_tanley.domain.dto.LoginDTO;
 import com.example.buck_tanley.domain.dto.UserDTO;
@@ -24,7 +23,6 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Transactional(readOnly = true)
     public User getUserById(Long id) {
         if (id == null)
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
@@ -36,7 +34,18 @@ public class UserService {
         return user.get();
     }
 
-    @Transactional
+    public UserDTO getUserDTO(String userId) {
+        if (userId == null) return null;
+
+        Optional<User> findUser = userRepository.findByUserId(userId);
+        if (findUser.isEmpty())
+            return null;
+        
+        UserDTO user = new UserDTO(findUser.get());
+
+        return user;
+    }
+
     public User createUser(User user) {
         if (userRepository.existsByUserId(user.getUserId()))
             throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
@@ -61,7 +70,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    @Transactional
     public User updateUser(User user) {
         if (user.getId() == null)
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
@@ -73,7 +81,14 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    @Transactional
+    public void updateUserStatus(String userId, short status) {
+        if (userId == null || status < 0 || status > 3)
+            throw new CustomException(ErrorCode.USER_NOT_FOUND);
+        
+        int record = userRepository.updateUserStatus(userId, status);
+        System.out.println("🔄 사용자 상태 변경: " + userId + " " + status + " " + record);
+    }
+
     public void deleteUser(Long id) {
         if (id == null)
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
@@ -84,34 +99,16 @@ public class UserService {
         userRepository.delete(user.get());
     }
 
-    @Transactional
     public User loginUser(LoginDTO loginDTO) {
         if (loginDTO.getUserId() == null || loginDTO.getUserPw() == null)
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
 
-        Optional<User> findUser = userRepository.findByUserId(loginDTO.getUserId());
+        Optional<User> findUser = userRepository.findByUserIdAndUserPw(loginDTO.getUserId(), loginDTO.getUserPw());
         if (findUser.isEmpty())
-            throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        
-        User user = findUser.get();
-
-        if (!user.getUserPw().equals(loginDTO.getUserPw())) // 실제 시스템에서는 비밀번호 암호화를 사용해야 합니다.
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
-
-        return user;
-    }
-
-    @Transactional
-    public UserDTO getUserDTO(String userId) {
-        if (userId == null) return null;
-
-        Optional<User> findUser = userRepository.findByUserId(userId);
-        if (findUser.isEmpty())
-            return null;
         
-        UserDTO user = new UserDTO(findUser.get());
-
-        return user;
+        userRepository.updateUserStatus(loginDTO.getUserId(), (short) 1);
+        
+        return findUser.get();
     }
-
 }

@@ -1,8 +1,6 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:buck_tanley_app/utils/Navigate.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' as foundation;
-import 'package:provider/provider.dart' as app_provider;
+import 'package:provider/provider.dart';
 
 class ChatWidget extends StatelessWidget {
   final UserDTO friend;
@@ -10,10 +8,10 @@ class ChatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = app_provider.Provider.of<UserProvider>(context, listen: false).user;
-    String roomId = Room.getRoomId(user?.userId ?? "", friend.userId);
-    Message? last = app_provider.Provider.of<MessageProvider>(context, listen: true).getlastForRoom(roomId);
-    Imager? imager = ImageConverter.decodeImage(friend.image);
+    ImageProvider friendImage = ImageConverter.getImageDecode(friend.image);
+    final messageProvider = context.watch<MessageProvider>();
+    final roomId = Room.getRoomId(getIt<UserProvider>().userId, friend.userId);
+    Message? last = messageProvider.getlastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
       child: ElevatedButton(
@@ -26,20 +24,14 @@ class ChatWidget extends StatelessWidget {
           backgroundColor: Colors.white,
         ),
         onPressed: () {
-          Navigate.pushChatting(user?.userId ?? "", friend.userId, false);
+          Navigate.pushChatting(friend, friendImage, false);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             CircleAvatar(
               radius: 25,
-              backgroundImage: imager == null
-                  ? AssetImage("assets/images/BuckTanleyLogo.png")
-                  : (foundation.kIsWeb
-                      ? (imager.webImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : MemoryImage(imager.webImage!)) // 웹
-                      : (imager.mobileImage == null ? AssetImage("assets/images/BuckTanleyLogo.png") : FileImage(imager.mobileImage!))), // 모바일,
-
-              //  AssetImage(friend.image ?? "assets/images/dinosaur1.png"),
+              backgroundImage: friendImage,
               backgroundColor: Color.fromARGB(255, 209, 209, 209),
             ),
             SizedBox(width: 20),

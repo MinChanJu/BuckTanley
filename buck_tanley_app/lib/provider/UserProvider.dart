@@ -1,19 +1,20 @@
 import 'dart:convert';
 
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class UserProvider with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   User? _user;
-  Imager? _imager;
   LoginDTO? _loginDTO;
+  ImageProvider _userImage = ImageConverter.getImage(null);
 
   User? get user => _user;
-  Imager? get imager => _imager;
   LoginDTO? get loginDTO => _loginDTO;
+  ImageProvider get userImage => _userImage;
+  String get userId => _user?.userId ?? "";
   bool get isLogin => _user != null;
 
   Future<void> loadUser() async {
@@ -41,38 +42,22 @@ class UserProvider with ChangeNotifier {
         final User user = apiResponse.data!;
 
         _user = user;
-        _imager = ImageConverter.decodeImage(user.image);
         _loginDTO = loginDTO;
+        _userImage = ImageConverter.getImageDecode(user.image);
         await _storage.write(key: 'loginDTO', value: jsonEncode(_loginDTO!.toJson()));
         notifyListeners();
 
         final messageProvider = getIt<MessageProvider>();
         await messageProvider.loadMessages(user.userId);
-
-        final wsService = WebSocketService.getInstance(user.userId, "chat");
-        wsService.messages.listen((data) {
-          try {
-            final message = Message.fromJson(jsonDecode(data));
-            String roomId = Room.getRoomId(message.sender, message.receiver);
-            messageProvider.addMessage(roomId, message);
-            print('📨 메시지 수신 및 저장 (방: $roomId): ${message.content}');
-          } catch (e) {
-            print('❌ 메시지 파싱 실패: $e');
-          }
-        }, onDone: () {
-          print('🔌 WebSocket 연결 종료');
-        }, onError: (error) {
-          print('❌ WebSocket 오류: $error');
-        });
       } else {
         await logout();
         print("로그인 실패");
-        Snack.showSnackbar("로그인 실패");
+        Show.snackbar("로그인 실패");
       }
     } catch (e) {
       await logout();
       print("❌ 로그인 중 오류 발생: $e");
-      Snack.showSnackbar("로그인 중 오류 발생");
+      Show.snackbar("로그인 중 오류 발생");
     }
     notifyListeners();
   }
@@ -81,11 +66,12 @@ class UserProvider with ChangeNotifier {
     final messageProvider = getIt<MessageProvider>();
     messageProvider.clearAllMessages();
 
-    final wsService = WebSocketService.getInstance(_user?.userId ?? "", "chat");
-    wsService.disconnect();
+    WebSocketService.disconnectAll();
 
     _user = null;
     await _storage.delete(key: 'loginDTO');
     notifyListeners();
+
+    print("로그아웃 성공");
   }
 }

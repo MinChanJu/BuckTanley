@@ -1,11 +1,13 @@
+import 'dart:convert';
+
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class MessageProvider with ChangeNotifier {
   // roomId -> List<Message>
   final Map<String, List<Message>> _roomMessages = {};
+  WebSocketService? wsService;
 
   Future<void> loadMessages(String userId) async {
     try {
@@ -25,7 +27,22 @@ class MessageProvider with ChangeNotifier {
           }
         }
         notifyListeners();
-        print('✅ 메시지 초기화 성공 (유저: $userId)');
+        print('✅ 메시지 불러오기 성공 (유저: $userId)');
+        wsService = WebSocketService.getInstance(Server.type(1));
+        wsService!.messages.listen((data) {
+          try {
+            final message = Message.fromJson(jsonDecode(data));
+            String roomId = Room.getRoomId(message.sender, message.receiver);
+            addMessage(roomId, message);
+            print('📨 type: ${wsService!.type}, platform: ${wsService!.platform} userId: ${wsService!.userId}, 메시지 수신 및 저장 (방: $roomId): ${message.content}');
+          } catch (e) {
+            print('❌ type: ${wsService!.type}, platform: ${wsService!.platform} userId: ${wsService!.userId}, 메시지 파싱 실패: $e');
+          }
+        }, onDone: () {
+          print('🔌 type: ${wsService!.type}, platform: ${wsService!.platform} userId: ${wsService!.userId}, WebSocket 연결 종료');
+        }, onError: (error) {
+          print('❌ type: ${wsService!.type}, platform: ${wsService!.platform} userId: ${wsService!.userId}, WebSocket 오류: $error');
+        });
       } else {
         print('❌ 서버 응답 오류: ${response.statusCode}');
       }
@@ -66,6 +83,8 @@ class MessageProvider with ChangeNotifier {
   // 모든 메시지 초기화
   void clearAllMessages() {
     _roomMessages.clear();
+    wsService?.disconnect();
     notifyListeners();
+    print("모든 메세지 초기화");
   }
 }

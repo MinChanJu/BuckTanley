@@ -1,5 +1,6 @@
 package com.example.buck_tanley.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,7 @@ public class FriendService {
             return friendRepository.save(friend);
         }
 
-        Friend friend = new Friend(null, userId1, userId2, (short) 1, null); // 친구 요청 전송
+        Friend friend = new Friend(null, userId1, userId2, (short) 1, ZonedDateTime.now()); // 친구 요청 전송
         return friendRepository.save(friend);
     }
 

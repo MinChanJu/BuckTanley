@@ -51,7 +51,7 @@ public class User {
     private Short age;
 
     @Column(name = "status")
-    private Short status;
+    private Short status; // 0 : 현재 비활성 상태, 1 : 활성 상태, 2 : 매칭 중인 상태, 3 : 매칭 된 상태
 
     @Column(name = "created_at")
     private ZonedDateTime createdAt;

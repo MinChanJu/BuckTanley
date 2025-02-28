@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:flutter/foundation.dart' as foundation;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -56,12 +55,12 @@ class _RegisterPageState extends State<RegisterPage> {
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
-        Snack.showSnackbar("회원가입 성공: ${responseData['message']}");
+        Show.snackbar("회원가입 성공: ${responseData['message']}");
       } else {
-        Snack.showSnackbar("회원가입 실패: ${responseData['message']}");
+        Show.snackbar("회원가입 실패: ${responseData['message']}");
       }
     } catch (e) {
-      Snack.showSnackbar("회원가입 중 오류 발생 $e");
+      Show.snackbar("회원가입 중 오류 발생 $e");
     }
   }
 
@@ -114,16 +113,12 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.grey[400],
-                          backgroundImage: imager == null
-                              ? null
-                              : (foundation.kIsWeb
-                                  ? (imager!.webImage == null ? null : MemoryImage(imager!.webImage!)) // 웹
-                                  : (imager!.mobileImage == null ? null : FileImage(imager!.mobileImage!))), // 모바일
+                          backgroundImage: imager == null ? null :ImageConverter.getImage(imager),
                           child: (imager == null || (imager!.mobileImage == null && imager!.webImage == null))
                               ? const Icon(
                                   Icons.camera_alt,
                                   size: 40,
-                                  color: Colors.white10,
+                                  color: Colors.white70,
                                 )
                               : null,
                         ),
