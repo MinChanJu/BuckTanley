@@ -1,6 +1,5 @@
 import 'dart:convert';
-import 'package:buck_tanley_app/models/dto/UserDTO.dart';
-import 'package:buck_tanley_app/utils/Server.dart';
+import 'package:buck_tanley_app/SetUp.dart';
 import 'package:http/http.dart' as http;
 
 class FriendService {

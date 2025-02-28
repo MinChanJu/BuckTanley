@@ -29,9 +29,11 @@ export 'package:buck_tanley_app/pages/settings/SecurityTab.dart';
 // Provider
 export 'package:buck_tanley_app/provider/MessageProvider.dart';
 export 'package:buck_tanley_app/provider/UserProvider.dart';
+export 'package:buck_tanley_app/provider/FriendProvider.dart';
 
 // Services
 export 'package:buck_tanley_app/services/WebSocketService.dart';
+export 'package:buck_tanley_app/services/FriendService.dart';
 
 // Utils
 export 'package:buck_tanley_app/utils/ImageConverter.dart';
