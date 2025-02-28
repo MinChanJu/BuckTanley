@@ -21,6 +21,18 @@ class FriendProvider extends ChangeNotifier {
       print('친구 목록 로딩 실패: $e');
     } finally {
       _isLoading = false;
+      _friends.sort((a, b) {
+        if (a.status==b.status) {
+          return a.nickname.compareTo(b.nickname);
+        }
+
+        if (a.status==0) {
+          return 1;
+        }
+        else {
+          return a.status.compareTo(b.status);
+        }
+      });
       notifyListeners();
     }
   }
