@@ -23,12 +23,24 @@ class Navigate {
     }
   }
 
-  static void pushChatting(String sender, String receiver, bool random) {
+  static void pushChatting(UserDTO partner, ImageProvider partnerImage, bool random) {
     final context = getIt<GlobalKey<NavigatorState>>().currentContext;
     if (context != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ChattingPage(sender: sender, receiver: receiver, random: random)),
+        MaterialPageRoute(builder: (context) => ChattingPage(partner: partner, partnerImage: partnerImage, random: random)),
+      );
+    } else {
+      print('❌ context가 없습니다.');
+    }
+  }
+
+  static void pushFriendDetail(UserDTO friend, ImageProvider friendImage) {
+    final context = getIt<GlobalKey<NavigatorState>>().currentContext;
+    if (context != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => FriendDetailPage(friend: friend, friendImage: friendImage)),
       );
     } else {
       print('❌ context가 없습니다.');

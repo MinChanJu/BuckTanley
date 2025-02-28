@@ -1,8 +1,6 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:provider/provider.dart' as app_provider;
+import 'package:buck_tanley_app/utils/Test.dart';
 import 'package:flutter/material.dart';
-
-import 'package:flutter/foundation.dart' as foundation;
 
 class FriendListPage extends StatefulWidget {
   const FriendListPage({super.key});
@@ -25,13 +23,17 @@ class _FriendListPageState extends State<FriendListPage> {
     });
   }
 
+
+  @override
+  void initState() {
+    super.initState();
+    friends.sort((a, b) => a.nickname.compareTo(b.nickname));
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    User? user =
-        app_provider.Provider.of<UserProvider>(context, listen: false).user;
-    Imager? imager =
-        app_provider.Provider.of<UserProvider>(context, listen: false).imager;
+    User? user = getIt<UserProvider>().user;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,16 +53,8 @@ class _FriendListPageState extends State<FriendListPage> {
             children: [
               CircleAvatar(
                 radius: 40,
+                backgroundImage: getIt<UserProvider>().userImage,
                 backgroundColor: Colors.grey[400],
-                backgroundImage: imager == null
-                    ? AssetImage("assets/images/BuckTanleyLogo.png")
-                    : (foundation.kIsWeb
-                        ? (imager.webImage == null
-                            ? AssetImage("assets/images/BuckTanleyLogo.png")
-                            : MemoryImage(imager.webImage!)) // 웹
-                        : (imager.mobileImage == null
-                            ? AssetImage("assets/images/BuckTanleyLogo.png")
-                            : FileImage(imager.mobileImage!))), // 모바일
               ),
               SizedBox(width: 20),
               Text(
@@ -71,7 +65,7 @@ class _FriendListPageState extends State<FriendListPage> {
                 ),
               ),
               SizedBox(width: 20),
-              Expanded(child: Text(user?.introduction ?? "안녕하세요 벅텐리입니다.")),
+              Expanded(child: Text(user?.introduction ?? "")),
             ],
           ),
         ),

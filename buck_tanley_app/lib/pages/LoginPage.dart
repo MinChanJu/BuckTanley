@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if (loginDTO.userId == "" || loginDTO.userPw == "") {
-      Snack.showSnackbar("빈칸을 채워넣으세요");
+      Show.snackbar("빈칸을 채워넣으세요");
       return;
     }
 

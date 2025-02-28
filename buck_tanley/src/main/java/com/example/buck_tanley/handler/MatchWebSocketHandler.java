@@ -1,19 +1,17 @@
 package com.example.buck_tanley.handler;
 
-// import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.springframework.stereotype.Component;
-// import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.example.buck_tanley.domain.dto.MatchDTO;
 import com.example.buck_tanley.domain.dto.UserDTO;
-// import com.example.buck_tanley.service.MatchService;
 import com.example.buck_tanley.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -40,8 +38,10 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
     String userId = (String) session.getAttributes().get("userId");
     if (userId != null) {
       UserDTO user = userService.getUserDTO(userId);
-      if (user != null) {
+      if (user != null && user.getStatus() == 1) {
         System.out.println("🔌 매칭 사용자 등록: " + userId);
+        userService.updateUserStatus(userId, (short) 2);
+        user.setStatus((short) 2);
         userSessions.put(userId, session);
         waitingQueue.offer(user);
         matchUsers();
@@ -97,11 +97,17 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
 
       System.out.println("📨 매칭 받은 메세지: " + matchDTO.getStatus() + " " + userId1 + " " + userId2);
 
-      userSessions.put(user1.getUserId(), session);
+      userSessions.put(userId1, session);
 
       if (matchDTO.getStatus().equals("수락")) {
         if (acceptUser.containsKey(userId2)) {
           if (acceptUser.get(userId2)) {
+            userService.updateUserStatus(user1.getUserId(), (short) 3);
+            userService.updateUserStatus(user2.getUserId(), (short) 3);
+
+            user1.setStatus((short) 3);
+            user2.setStatus((short) 3);
+
             sendMatch(new MatchDTO("매칭 승인", user1, user2));
             sendMatch(new MatchDTO("매칭 승인", user2, user1));
           } else {
@@ -111,9 +117,19 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
           sendMatch(new MatchDTO("매칭 취소", user1, user2));
         }
       } else if (matchDTO.getStatus().equals("거절")) {
+        userService.updateUserStatus(user1.getUserId(), (short) 1);
+        userService.updateUserStatus(user2.getUserId(), (short) 1);
+
+        user1.setStatus((short) 1);
+        user2.setStatus((short) 1);
+
         sendMatch(new MatchDTO("매칭 거절", user1, user2));
         sendMatch(new MatchDTO("매칭 거절", user2, user1));
       } else if (matchDTO.getStatus().equals("취소")) {
+        userService.updateUserStatus(user1.getUserId(), (short) 1);
+
+        user1.setStatus((short) 1);
+        
         sendMatch(new MatchDTO("매칭 취소", user1, user2));
       }
     } catch (Exception e) {
@@ -124,7 +140,7 @@ public class MatchWebSocketHandler extends TextWebSocketHandler {
 
   @SuppressWarnings("null")
   @Override
-  public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
+  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
     String userId = (String) session.getAttributes().get("userId");
     waitingQueue.remove(new UserDTO(userId));
     userSessions.remove(userId);

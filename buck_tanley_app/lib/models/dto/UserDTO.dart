@@ -19,9 +19,9 @@ class UserDTO {
     required this.status,
   });
 
-  factory UserDTO.init(String userId) {
+  factory UserDTO.init(String? userId) {
     return UserDTO(
-      userId: userId,
+      userId: userId ?? "",
       nickname: "",
       image: null,
       introduction: "",
