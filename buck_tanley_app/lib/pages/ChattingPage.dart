@@ -48,7 +48,7 @@ class _ChattingPageState extends State<ChattingPage> {
         }
       }, onDone: () {
         print('🔌 type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, WebSocket random 연결 종료');
-        Navigate.pop();
+        if (mounted) Navigate.pop();
       }, onError: (error) {
         print('❌ type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, WebSocket random 오류: $error');
       });
