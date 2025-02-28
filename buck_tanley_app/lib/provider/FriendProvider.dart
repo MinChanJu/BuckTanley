@@ -16,6 +16,7 @@ class FriendProvider extends ChangeNotifier {
 
     try {
       _friends = await _friendService.loadFriends(userId);
+      print('친구 목록 불러오기 성공');
     } catch (e) {
       print('친구 목록 로딩 실패: $e');
     } finally {

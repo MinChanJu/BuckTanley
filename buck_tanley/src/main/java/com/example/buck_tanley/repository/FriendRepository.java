@@ -22,7 +22,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
                     ELSE f.user_id1
                 END
             WHERE ?1 IN (f.user_id1, f.user_id2)
-              AND f.status = 0
             """, nativeQuery = true)
     List<User> findAllByUserId(String userId);
 

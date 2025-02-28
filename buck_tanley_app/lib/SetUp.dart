@@ -60,6 +60,7 @@ export 'package:buck_tanley_app/widgets/OutlineTextWidget.dart';
 
 
 // 🛠️ GetIt & instance 설정
+import 'package:buck_tanley_app/provider/FriendProvider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
@@ -71,6 +72,7 @@ Future<void> setup() async {
   // Provider 등록
   getIt.registerSingleton<UserProvider>(UserProvider());
   getIt.registerSingleton<MessageProvider>(MessageProvider());
+  getIt.registerSingleton<FriendProvider>(FriendProvider());
 
   // Navigator Key 등록
   getIt.registerSingleton<GlobalKey<NavigatorState>>(GlobalKey<NavigatorState>());

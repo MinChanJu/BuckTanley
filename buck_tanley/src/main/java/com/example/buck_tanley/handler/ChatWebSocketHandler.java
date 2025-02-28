@@ -83,7 +83,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             sendMessage(message, 1, type);
             if (message.getId() == 3) {
               friendService.createFriend(message.getSender(), message.getReceiver());
-              friendService.createFriend(message.getReceiver(), message.getSender());
             }
           }
           break;

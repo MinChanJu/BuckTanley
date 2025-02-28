@@ -1,6 +1,6 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:buck_tanley_app/utils/Test.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FriendListPage extends StatefulWidget {
   const FriendListPage({super.key});
@@ -14,20 +14,9 @@ class _FriendListPageState extends State<FriendListPage> {
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      final user =
-          app_provider.Provider.of<UserProvider>(context, listen: false).user;
-      if (user != null) {
-        app_provider.Provider.of<FriendProvider>(context, listen: false)
-            .loadFriends(user.userId);
-      }
+      final String userId = getIt<UserProvider>().userId;
+      getIt<FriendProvider>().loadFriends(userId);
     });
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    friends.sort((a, b) => a.nickname.compareTo(b.nickname));
   }
 
   @override
@@ -70,7 +59,7 @@ class _FriendListPageState extends State<FriendListPage> {
           ),
         ),
         Expanded(
-          child: app_provider.Consumer<FriendProvider>(
+          child: Consumer<FriendProvider>(
             builder: (context, friendProvider, child) {
               if (friendProvider.isLoading) {
                 return Center(child: CircularProgressIndicator()); // 로딩 중
