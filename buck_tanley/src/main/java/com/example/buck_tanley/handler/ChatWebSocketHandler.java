@@ -7,7 +7,9 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 
 import com.example.buck_tanley.domain.entity.Message;
+import com.example.buck_tanley.service.FriendService;
 import com.example.buck_tanley.service.MessageService;
+import com.example.buck_tanley.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -18,25 +20,32 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ChatWebSocketHandler extends TextWebSocketHandler {
 
-  // 사용자별 웹소켓 세션 관리 (userId -> (type -> session))
-  private final ConcurrentHashMap<String, ConcurrentHashMap<String, WebSocketSession>> userSessions = new ConcurrentHashMap<>();
+  // 사용자별 웹소켓 세션 관리 (userId -> (platform -> session))
+  private final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<String, WebSocketSession>>> userSessions = new ConcurrentHashMap<>();
   // 매칭 대기열 (유저 ID 저장)
   private final ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule())
       .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+  private FriendService friendService;
   private MessageService messageService;
+  private UserService userService;
 
-  public ChatWebSocketHandler(MessageService messageService) {
+
+  public ChatWebSocketHandler(FriendService friendService, MessageService messageService, UserService userService) {
+    this.friendService = friendService;
     this.messageService = messageService;
+    this.userService = userService;
   }
 
   @SuppressWarnings("null")
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
     String userId = (String) session.getAttributes().get("userId");
+    String platform = (String) session.getAttributes().get("platform");
     String type = (String) session.getAttributes().get("type");
     if (userId != null && type != null) {
-      userSessions.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).put(type, session);
-      System.out.println("🔌 사용자 연결 " + type + " : " + userId);
+      userSessions.computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
+          .computeIfAbsent(platform, k -> new ConcurrentHashMap<>()).put(type, session);
+      System.out.println("🔌 사용자 연결 " + type + " " + platform + " : " + userId);
     } else {
       System.out.println("⚠️ userId 또는 type이 전달되지 않았습니다.");
     }
@@ -46,13 +55,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
     String userId = (String) session.getAttributes().get("userId");
+    String platform = (String) session.getAttributes().get("platform");
     String type = (String) session.getAttributes().get("type");
     String payload = textMessage.getPayload();
     System.out.println("📨 받은 메세지 " + type + " : " + payload);
 
     try {
       Message message = objectMapper.readValue(payload, Message.class);
-      userSessions.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).put(type, session);
+      userSessions.computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
+          .computeIfAbsent(platform, k -> new ConcurrentHashMap<>()).put(type, session);
 
       switch (type) {
         case "chat":
@@ -65,10 +76,15 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             sendMessage(message, 0, type);
             sendMessage(message, 1, type);
           } else if (message.getId() == 1) { // 연결 종료
-            forceCloseConnection(message.getSender(), type);
-            forceCloseConnection(message.getReceiver(), type);
-          } else if (message.getId() == 2) { // 친구 추가
-            System.err.println("친구 추가 : " + message.getSender() + " -> " + message.getReceiver());
+            forceCloseRandomConnection(message.getSender());
+            forceCloseRandomConnection(message.getReceiver());
+          } else { // 친구 요청 / 2: 요청 / 3: 수락 / 4: 거절 / ? : 아무것도 아님
+            System.out.println("친구 요청 : " + message.getSender() + " -> " + message.getReceiver());
+            sendMessage(message, 1, type);
+            if (message.getId() == 3) {
+              friendService.createFriend(message.getSender(), message.getReceiver());
+              friendService.createFriend(message.getReceiver(), message.getSender());
+            }
           }
           break;
         default:
@@ -86,47 +102,59 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     String response = objectMapper.writeValueAsString(message);
     String userId = SR == 0 ? message.getSender() : message.getReceiver();
 
-    ConcurrentHashMap<String, WebSocketSession> userMap = userSessions.get(userId);
+    ConcurrentHashMap<String, ConcurrentHashMap<String, WebSocketSession>> userMap = userSessions.get(userId);
     if (userMap != null) {
-      WebSocketSession userSession = userMap.get(type);
-      if (userSession != null && userSession.isOpen()) {
-        if (SR == 0 || !message.getSender().equals(message.getReceiver())) {
-          userSession.sendMessage(new TextMessage(response));
-          System.out.println("📤 메세지 전송 완료 " + type + " : " + userId);
-          SR = 10;
-        } else if (type.equals("chat")) {
-          System.out.println("📤 메세지 전송 완료 " + type + " : " + userId + "(본인)");
-          SR = 10;
+      for (String platform : userMap.keySet()) {
+        WebSocketSession userSession = userMap.get(platform).get(type);
+        if (userSession != null && userSession.isOpen()) {
+          if (SR == 0 || !message.getSender().equals(message.getReceiver())) {
+            userSession.sendMessage(new TextMessage(response));
+            System.out.println("📤 메세지 전송 완료 " + type + " " + platform + " : " + userId);
+            SR = 10;
+          } else if (type.equals("chat")) {
+            System.out.println("📤 메세지 전송 완료 " + type + " " + platform + " : " + userId + "(본인)");
+            SR = 10;
+          }
         }
       }
+
     }
 
     if (SR != 10) {
       System.out.println("⚠️ 수신자 세션이 없습니다 " + type + " : " + userId);
       if (type.equals("random")) {
-        forceCloseConnection(message.getSender(), type);
-        forceCloseConnection(message.getReceiver(), type);
+        forceCloseRandomConnection(message.getSender());
+        forceCloseRandomConnection(message.getReceiver());
       }
     }
   }
 
-  public void forceCloseConnection(String userId, String type) {
+  public void forceCloseRandomConnection(String userId) {
     try {
-      ConcurrentHashMap<String, WebSocketSession> userMap = userSessions.get(userId);
+      ConcurrentHashMap<String, ConcurrentHashMap<String, WebSocketSession>> userMap = userSessions.get(userId);
       if (userMap != null) {
-        WebSocketSession userSession = userMap.get(type);
-        if (userSession != null) {
-          userMap.remove(type);
-          if (userMap.isEmpty()) {
-            userSessions.remove(userId);
-          }
-          if (userSession.isOpen()) {
-            userSession.close(CloseStatus.NORMAL);
+        for (String platform : userMap.keySet()) {
+          ConcurrentHashMap<String, WebSocketSession> userPlatformMap = userMap.get(platform);
+          if (userPlatformMap != null) {
+            WebSocketSession userSession = userPlatformMap.get("random");
+            if (userSession != null) {
+              userPlatformMap.remove("random");
+              if (userPlatformMap.isEmpty()) {
+                userMap.remove(platform);
+              }
+              if (userSession.isOpen()) {
+                userSession.close(CloseStatus.NORMAL);
+                System.out.println("🔌 사용자 연결 강제 종료 random " + platform + " : " + userId);
+
+              }
+            }
           }
         }
+        if (userMap.isEmpty()) {
+          userSessions.remove(userId);
+          userService.updateUserStatus(userId, (short) 0);
+        }
       }
-
-      System.out.println("🔌 사용자 연결 강제 종료 " + type + " : " + userId);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -134,17 +162,25 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
 
   @SuppressWarnings("null")
   @Override
-  public void afterConnectionClosed(WebSocketSession session, org.springframework.web.socket.CloseStatus status) {
+  public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
     String userId = (String) session.getAttributes().get("userId");
+    String platform = (String) session.getAttributes().get("platform");
     String type = (String) session.getAttributes().get("type");
-    ConcurrentHashMap<String, WebSocketSession> userMap = userSessions.get(userId);
+    ConcurrentHashMap<String, ConcurrentHashMap<String, WebSocketSession>> userMap = userSessions.get(userId);
     if (userMap != null) {
-      userMap.remove(type);
+      ConcurrentHashMap<String, WebSocketSession> userPlatformMap = userMap.get(platform);
+      if (userPlatformMap != null) {
+        userPlatformMap.remove(type);
+        if (userPlatformMap.isEmpty()) {
+          userMap.remove(platform);
+        }
+      }
       if (userMap.isEmpty()) {
         userSessions.remove(userId);
+        userService.updateUserStatus(userId, (short) 0);
       }
     }
-    System.out.println("🔌 사용자 연결 해제 " + type + " : " + userId);
+    System.out.println("🔌 사용자 연결 해제 " + type + " : " + userId + " -> " + status.getReason());
   }
 
   @SuppressWarnings("null")

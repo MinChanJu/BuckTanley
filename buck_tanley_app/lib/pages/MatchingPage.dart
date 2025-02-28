@@ -33,11 +33,11 @@ class _MatchingPageState extends State<MatchingPage> {
 
   void matching() {
     if (mounted) {
-      matchWS = WebSocketService.getInstance("match");
+      matchWS = WebSocketService.getInstance(Server.type(0));
       matchWS.messages.listen((data) {
         try {
           matchDTO = MatchDTO.fromJson(jsonDecode(data));
-          print('📨 매칭 메세지 수신: ${matchDTO.status} ${matchDTO.user1.userId} ${matchDTO.user2.userId}');
+          print('📨 type: ${matchWS.type}, platform: ${matchWS.platform} userId: ${matchWS.userId}, 매칭 메세지 수신: ${matchDTO.status} ${matchDTO.user1.userId} ${matchDTO.user2.userId}');
 
           if (matchDTO.status == "매칭") {
             varInit();
@@ -47,26 +47,17 @@ class _MatchingPageState extends State<MatchingPage> {
               partnerImage = ImageConverter.getImageDecode(partner.image);
             });
           } else {
-            if (matchDTO.status == "매칭 승인") {
-              if (mounted) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  Navigate.pushChatting(partner, partnerImage, true);
-                  varInit();
-                  matchWS.disconnect();
-                });
-              }
-            } else {
-              varInit();
-              matchWS.disconnect();
-            }
+            if (matchDTO.status == "매칭 승인") Navigate.pushChatting(partner, partnerImage, true);
+            varInit();
+            matchWS.disconnect();
           }
         } catch (e) {
-          print('❌ 메시지 파싱 실패: $e');
+          print('❌ type: ${matchWS.type}, platform: ${matchWS.platform} userId: ${matchWS.userId}, 메시지 파싱 실패: $e');
         }
       }, onDone: () {
-        matchWS.disconnect();
+        print('🔌 type: ${matchWS.type}, platform: ${matchWS.platform} userId: ${matchWS.userId}, WebSocket 연결 종료');
       }, onError: (error) {
-        print('❌ WebSocket 오류: $error');
+        print('❌ type: ${matchWS.type}, platform: ${matchWS.platform} userId: ${matchWS.userId}, WebSocket 오류: $error');
       });
 
       setState(() {
@@ -140,7 +131,6 @@ class _MatchingPageState extends State<MatchingPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(

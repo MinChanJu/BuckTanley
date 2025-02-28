@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageConverter {
+  static ImageProvider defaultImage = AssetImage("assets/images/BuckTanleyLogo.png");
+
   /// 📸 이미지 선택 (웹/모바일 환경 모두 지원)
   static Future<Imager?> pickImage() async {
     try {
@@ -16,7 +18,7 @@ class ImageConverter {
           final Uint8List imager = await pickedFile.readAsBytes();
           return Imager(webImage: imager, mobileImage: null);
         } else {
-          final io.File imager = io.File(pickedFile.path);
+          final File imager = File(pickedFile.path);
           return Imager(webImage: null, mobileImage: imager);
         }
       }
@@ -42,7 +44,7 @@ class ImageConverter {
     return null;
   }
 
-  /// 🔓 Base64 문자열을 이미지로 디코딩 (웹: Uint8List, 모바일: io.File)
+  /// 🔓 Base64 문자열을 이미지로 디코딩 (웹: Uint8List, 모바일: File)
   static Imager? decodeImage(String? base64String, {String fileName = 'image.png'}) {
     try {
       if (base64String != null && base64String.isNotEmpty) {
@@ -53,10 +55,10 @@ class ImageConverter {
           return Imager(webImage: webImage, mobileImage: null);
         } else {
           // 💻 macOS, 모바일 환경: 파일 시스템에 저장
-          final String tempDir = io.Directory.systemTemp.path; // 안전한 임시 디렉터리 사용
+          final String tempDir = Directory.systemTemp.path; // 안전한 임시 디렉터리 사용
           final String filePath = '$tempDir/${DateTime.now().millisecondsSinceEpoch}_$fileName';
 
-          io.File mobileImage = io.File(filePath);
+          File mobileImage = File(filePath);
           mobileImage.writeAsBytesSync(decodedBytes);
           return Imager(webImage: null, mobileImage: mobileImage);
         }
@@ -69,7 +71,6 @@ class ImageConverter {
 
   static ImageProvider getImageDecode(String? base64String) {
     Imager? image = decodeImage(base64String);
-    final defaultImage = AssetImage("assets/images/BuckTanleyLogo.png");
 
     if (image == null) return defaultImage;
 
@@ -84,7 +85,6 @@ class ImageConverter {
   }
 
   static ImageProvider getImage(Imager? image) {
-    final defaultImage = AssetImage("assets/images/BuckTanleyLogo.png");
 
     if (image == null) {
       return defaultImage;

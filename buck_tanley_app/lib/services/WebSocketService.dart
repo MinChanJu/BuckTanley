@@ -9,7 +9,8 @@ class WebSocketService {
   static final Map<String, WebSocketService> _instances = {};
   late WebSocketChannel _channel;
   late Stream<dynamic> _broadcastStream;
-  final String userId = getIt<UserProvider>().user?.userId ?? "";
+  final String userId = getIt<UserProvider>().userId;
+  final String platform = Server.platform;
   final String type;
 
   // private 생성자
@@ -25,12 +26,12 @@ class WebSocketService {
   // WebSocket 연결
   void _connect() async {
     try {
-      String url = Server.wsUrl(userId, type);
+      String url = Server.wsUrl(type);
       _channel = WebSocketServiceFactory.connect(url);
       _broadcastStream = _channel.stream.asBroadcastStream();
-      print('🔌 WebSocket $type 연결 성공: $userId');
+      print('🔌 WebSocket $type $platform 연결 성공: $userId');
     } catch (e) {
-      print('🚨 WebSocket $type 연결 실패: $e');
+      print('🚨 WebSocket $type $platform 연결 실패: $userId -> $e');
     }
   }
 
@@ -41,13 +42,22 @@ class WebSocketService {
   void sendMessage(Map<String, dynamic> json) {
     final jsonString = jsonEncode(json);
     _channel.sink.add(jsonString);
-    print('💬 WebSocket $type 메세지 전송: $userId');
+    print('💬 WebSocket $type $platform 메세지 전송: $userId');
   }
 
   // WebSocket 연결 해제
   void disconnect() {
-    _channel.sink.close();
+    if (_channel.closeCode == null) _channel.sink.close();
     _instances.remove(type);
-    print('🔌 WebSocket $type 연결 해제: $userId');
+    print('🔌 WebSocket $type $platform 연결 해제: $userId');
+  }
+
+  // WebSocket 연결 해제 (모든 인스턴스)
+  static void disconnectAll() {
+    _instances.forEach((key, value) {
+      if (value._channel.closeCode == null) value._channel.sink.close();
+    });
+    _instances.clear();
+    print('🔌 모든 WebSocket 연결 해제');
   }
 }

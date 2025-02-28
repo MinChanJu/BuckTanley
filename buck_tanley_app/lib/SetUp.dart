@@ -42,7 +42,7 @@ export 'package:buck_tanley_app/utils/ImageConverter.dart';
 export 'package:buck_tanley_app/utils/Navigate.dart';
 export 'package:buck_tanley_app/utils/Room.dart';
 export 'package:buck_tanley_app/utils/Server.dart';
-export 'package:buck_tanley_app/utils/Snack.dart';
+export 'package:buck_tanley_app/utils/Show.dart';
 export 'package:buck_tanley_app/utils/Time.dart';
 
 // Widgets

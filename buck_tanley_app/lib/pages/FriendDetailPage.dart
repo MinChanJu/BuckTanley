@@ -28,12 +28,7 @@ class FriendDetailPage extends StatelessWidget {
               ),
               child: GestureDetector(
                 behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => ImageWidget(imageProvider: friendImage),
-                  );
-                },
+                onTap: () => Show.dialog(context: context, builder: ImageWidget(imageProvider: friendImage)),
               ),
             ),
             Text(

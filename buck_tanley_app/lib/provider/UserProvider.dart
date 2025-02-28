@@ -49,31 +49,15 @@ class UserProvider with ChangeNotifier {
 
         final messageProvider = getIt<MessageProvider>();
         await messageProvider.loadMessages(user.userId);
-
-        final wsService = WebSocketService.getInstance("chat");
-        wsService.messages.listen((data) {
-          try {
-            final message = Message.fromJson(jsonDecode(data));
-            String roomId = Room.getRoomId(message.sender, message.receiver);
-            messageProvider.addMessage(roomId, message);
-            print('📨 메시지 수신 및 저장 (방: $roomId): ${message.content}');
-          } catch (e) {
-            print('❌ 메시지 파싱 실패: $e');
-          }
-        }, onDone: () {
-          print('🔌 WebSocket 연결 종료');
-        }, onError: (error) {
-          print('❌ WebSocket 오류: $error');
-        });
       } else {
         await logout();
         print("로그인 실패");
-        Snack.showSnackbar("로그인 실패");
+        Show.snackbar("로그인 실패");
       }
     } catch (e) {
       await logout();
       print("❌ 로그인 중 오류 발생: $e");
-      Snack.showSnackbar("로그인 중 오류 발생");
+      Show.snackbar("로그인 중 오류 발생");
     }
     notifyListeners();
   }
@@ -82,8 +66,7 @@ class UserProvider with ChangeNotifier {
     final messageProvider = getIt<MessageProvider>();
     messageProvider.clearAllMessages();
 
-    final wsService = WebSocketService.getInstance("chat");
-    wsService.disconnect();
+    WebSocketService.disconnectAll();
 
     _user = null;
     await _storage.delete(key: 'loginDTO');

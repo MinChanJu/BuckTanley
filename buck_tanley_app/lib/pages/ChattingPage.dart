@@ -21,32 +21,36 @@ class _ChattingPageState extends State<ChattingPage> {
   late WebSocketService wsService;
   final List<Message> messages = [];
   late String roomId;
+  bool add = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-    wsService = WebSocketService.getInstance(widget.random ? "random" : "chat");
+    wsService = WebSocketService.getInstance(Server.type(widget.random ? 2 : 1));
     if (widget.random) {
       wsService.messages.listen((data) {
         try {
           final Message message = Message.fromJson(jsonDecode(data));
-          setState(() {
-            messages.add(message);
-          });
-          print('📨 메시지 수신 및 저장 random: ${message.content}');
+          if (message.id == null) {
+            setState(() => messages.add(message));
+          } else if (message.id == 2) {
+            _friendRequest();
+          } else if (message.id == 3) {
+            Show.snackbar('상대방이 친구 요청을 수락했습니다.');
+          } else if (message.id == 4) {
+            setState(() => add = false);
+            Show.snackbar('상대방이 친구 요청을 거절했습니다.');
+          }
+          print('📨 type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, 메시지 수신 및 저장 random: ${message.content}');
         } catch (e) {
-          print('❌ 메시지 파싱 실패 random: $e');
+          print('❌ type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, 메시지 파싱 실패 random: $e');
         }
       }, onDone: () {
-        print('🔌 WebSocket random 연결 종료');
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            Navigator.pop(context);
-          }
-        });
+        print('🔌 type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, WebSocket random 연결 종료');
+        Navigate.pop();
       }, onError: (error) {
-        print('❌ WebSocket random 오류: $error');
+        print('❌ type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, WebSocket random 오류: $error');
       });
     }
     roomId = Room.getRoomId(userId, widget.partner.userId);
@@ -57,8 +61,8 @@ class _ChattingPageState extends State<ChattingPage> {
     _scrollController.dispose();
     _textController.dispose();
     if (widget.random) {
-      wsService.sendMessage(Message(id: 1, content: "text", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now()).toJson());
-      wsService.disconnect();
+      Message sendMessage = Message(id: 1, content: "text", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+      wsService.sendMessage(sendMessage.toJson());
     }
     super.dispose();
   }
@@ -82,61 +86,69 @@ class _ChattingPageState extends State<ChattingPage> {
     wsService.sendMessage(sendMessage.toJson());
   }
 
-  void _addFriend() {
-    showDialog(
+  void _friendRequest() {
+    Show.dialog(
       context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('친구 추가'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('이 사람을 친구 추가 하시겠습니까?'),
-              const SizedBox(height: 10),
-              TextButton(
-                onPressed: () {
-                  Navigate.pushFriendDetail(widget.partner, widget.partnerImage);
-                },
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundImage: widget.partnerImage,
-                      backgroundColor: const Color.fromARGB(255, 209, 209, 209),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(widget.partner.nickname),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                print("친구 추가 취소");
-              },
-              child: const Text('취소'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Message sendMessage = Message(id: 2, content: "친구 추가", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
-                print("친구 추가 요청 : ${sendMessage.toJson()}");
-                wsService.sendMessage(sendMessage.toJson());
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('친구 추가 요청을 보냈습니다.')),
-                );
-              },
-              child: const Text('확인'),
-            ),
-          ],
-        );
-      },
+      barrier: false,
+      title: '친구 요청',
+      message: '상대방이 친구 요청을 보내왔습니다.\n친구 요청을 수락하시겠습니까?',
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            Message sendMessage = Message(id: 4, content: "거절", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+            print("친구 요청 거절 : ${sendMessage.toJson()}");
+            wsService.sendMessage(sendMessage.toJson());
+            Show.snackbar('친구 요청을 거절했습니다.');
+          },
+          child: const Text('거절'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            Message sendMessage = Message(id: 3, content: "수락", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+            print("친구 요청 수락 : ${sendMessage.toJson()}");
+            wsService.sendMessage(sendMessage.toJson());
+            Show.snackbar('친구 요청을 수락했습니다.');
+          },
+          child: const Text('수락'),
+        ),
+      ],
+      partner: widget.partner,
+      partnerImage: widget.partnerImage,
     );
+  }
 
+  void _addFriend() {
+    if (add) return;
+    Show.dialog(
+      context: context,
+      barrier: false,
+      title: '친구 요청',
+      message: '친구 요청을 보내시겠습니까?',
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            print("친구 요청 취소");
+          },
+          child: const Text('취소'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+            Message sendMessage = Message(id: 2, content: "친구 요청", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+            print("친구 요청 : ${sendMessage.toJson()}");
+            setState(() => add = true);
+            wsService.sendMessage(sendMessage.toJson());
+            Show.snackbar('친구 요청을 보냈습니다.');
+          },
+          child: const Text('확인'),
+        ),
+      ],
+      partner: widget.partner,
+      partnerImage: widget.partnerImage,
+    );
   }
 
   @override
@@ -203,8 +215,12 @@ class _ChattingPageState extends State<ChattingPage> {
           if (widget.random)
             IconButton(
               onPressed: _addFriend,
-              icon: Icon(Icons.person_add),
+              icon: Icon(add ? Icons.how_to_reg : Icons.person_add),
             ),
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.search),
+          ),
           Builder(
             builder: (BuildContext context) {
               return IconButton(

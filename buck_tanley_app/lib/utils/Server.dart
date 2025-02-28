@@ -1,21 +1,64 @@
+import 'dart:io';
+
+import 'package:buck_tanley_app/SetUp.dart';
+import 'package:flutter/foundation.dart';
+
 class Server {
-  static const String baseUrl = "http://localhost:8080";
+  static String get ip {
+    if (kIsWeb) {
+      return "localhost"; // 웹 전용 주소
+    } else if (Platform.isAndroid) {
+      return "10.0.2.2"; // Android 에뮬레이터 전용 주소
+    } else {
+      return "localhost"; // 기본 주소
+    }
+  }
+
+  static String get port {
+      return ":8080"; // 포트 번호
+  }
+
+  static String get platform {
+    if (kIsWeb) {
+      return "web"; // 웹
+    } else {
+      return Platform.operatingSystem; // 안드로이드, iOS, macOS, Windows, Linux
+    }
+  }
+
+  /// 0 - match / 1 - chat / 2 - random
+  static String type(int index) {
+    switch (index) {
+      case 0:
+        return "match";
+      case 1:
+        return "chat";
+      case 2:
+        return "random";
+      default:
+        return "";
+    }
+  }
+
+  static String get baseUrl => "http://$ip$port";
   
-  static const String apiUrl = "http://localhost:8080/api";
+  static String get apiUrl => "http://$ip$port/api";
 
-  static const String userUrl = "http://localhost:8080/api/users";
-  static const String messageUrl = "http://localhost:8080/api/messages";
-  static const String friendUrl = "http://localhost:8080/api/friends";
+  static String get userUrl => "http://$ip$port/api/users";
+  static String get messageUrl => "http://$ip$port/api/messages";
+  static String get friendUrl => "http://$ip$port/api/friends";
 
-  static String wsUrl(String userId, String type) {
-    if (type == "chat" || type == "random") return "ws://localhost:8080/chat?userId=$userId&type=$type";
-    if (type == "match") return "ws://localhost:8080/match?userId=$userId&type=$type";
+  static String wsUrl(String type) {
+    final String query = "userId=${getIt<UserProvider>().userId}&platform=$platform&type=$type";
+    if (type == "chat" || type == "random") return "$chatWS?$query";
+    if (type == "match") return "$matchWS?$query";
     return "";
   }
-  static const String chatWS = "ws://localhost:8080/chat";
-  static const String matchWS = "ws://localhost:8080/match";
 
-  static const Map<String, String> header = {
+  static String chatWS = "ws://$ip$port/chat";
+  static String matchWS = "ws://$ip$port/match";
+
+  static Map<String, String> header = {
     'Accept': 'application/json; charset=UTF-8',
     'Content-Type': 'application/json; charset=UTF-8',
   };
