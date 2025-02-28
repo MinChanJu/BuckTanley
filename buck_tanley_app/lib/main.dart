@@ -11,6 +11,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => getIt<UserProvider>()),
         ChangeNotifierProvider(create: (_) => getIt<MessageProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<FriendProvider>()),
       ],
       child: const MyApp(),
     ),

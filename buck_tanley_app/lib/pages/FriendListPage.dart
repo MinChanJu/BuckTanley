@@ -10,19 +10,19 @@ class FriendListPage extends StatefulWidget {
 }
 
 class _FriendListPageState extends State<FriendListPage> {
-  List<UserDTO> friends = [
-    UserDTO(userId: "test00", nickname: "이미지 테스트", image: Test.testoo, introduction: "이미지 소개중..", gender: true, age: 30, status: 0),
-    UserDTO(userId: "test11", nickname: "테스트11", image: Test.testll, introduction: "테스트 계정", gender: false, age: 25, status: 0),
-    UserDTO(userId: "android", nickname: "안드로이드 테스트", image: Test.android, introduction: "안녕하세요 안드로이드 테스트 계정임", gender: true, age: 28, status: 2),
-    UserDTO(userId: "ios", nickname: "ios 테스트", image: Test.ios, introduction: "안녕하세요 ios 테스트 계정임", gender: false, age: 25, status: 2),
-    UserDTO(userId: "macos", nickname: "macos 테스트", image: Test.macos, introduction: "안녕하세요 macos 테스트 계정임", gender: false, age: 18, status: 0),
-    UserDTO(userId: "web", nickname: "web 테스트", image: Test.web, introduction: "안녕하세요 web 테스트 계정임", gender: true, age: 24, status: 1),
-    UserDTO(userId: "te", nickname: "가위", image: "", introduction: "ㅋㅌㅍㅇ류", gender: false, age: 25, status: 1),
-    UserDTO(userId: "rnt", nickname: "커피", image: "", introduction: "ㅇ륭륜ㅁㅇㅍ", gender: false, age: 18, status: 2),
-    UserDTO(userId: "khmk", nickname: "러아", image: "", introduction: "ㄴㅇㅍㄴㅁ ㄹ", gender: true, age: 27, status: 0),
-    UserDTO(userId: "xnj", nickname: "아러후", image: "", introduction: " ㄹㅇ ㅎㄹ", gender: false, age: 24, status: 3),
-    UserDTO(userId: "fob", nickname: "무래하", image: "", introduction: "ㄹㅎ ㅇㄹ ㅇㄴㄴㅇ", gender: true, age: 22, status: 3),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      final user =
+          app_provider.Provider.of<UserProvider>(context, listen: false).user;
+      if (user != null) {
+        app_provider.Provider.of<FriendProvider>(context, listen: false)
+            .loadFriends(user.userId);
+      }
+    });
+  }
+
 
   @override
   void initState() {
@@ -41,7 +41,9 @@ class _FriendListPageState extends State<FriendListPage> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             width: screenWidth,
-            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey, width: 1))),
+            decoration: BoxDecoration(
+                border:
+                    Border(bottom: BorderSide(color: Colors.grey, width: 1))),
             child: Text("친구 목록", style: TextStyle(fontSize: 25)),
           ),
         ),
@@ -68,10 +70,20 @@ class _FriendListPageState extends State<FriendListPage> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: friends.length,
-            itemBuilder: (context, index) {
-              return FriendWidget(friend: friends[index]);
+          child: app_provider.Consumer<FriendProvider>(
+            builder: (context, friendProvider, child) {
+              if (friendProvider.isLoading) {
+                return Center(child: CircularProgressIndicator()); // 로딩 중
+              }
+              if (friendProvider.friends.isEmpty) {
+                return Center(child: Text("친구가 없습니다.")); // 친구 없음
+              }
+              return ListView.builder(
+                itemCount: friendProvider.friends.length,
+                itemBuilder: (context, index) {
+                  return FriendWidget(friend: friendProvider.friends[index]);
+                },
+              );
             },
           ),
         ),
