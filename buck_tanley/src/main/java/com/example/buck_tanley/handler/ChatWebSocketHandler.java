@@ -83,7 +83,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             sendMessage(message, 1, type);
             if (message.getId() == 3) {
               friendService.createFriend(message.getSender(), message.getReceiver());
-              friendService.createFriend(message.getReceiver(), message.getSender());
             }
           }
           break;
@@ -153,6 +152,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (userMap.isEmpty()) {
           userSessions.remove(userId);
           userService.updateUserStatus(userId, (short) 0);
+        } else {
+          userService.updateUserStatus(userId, (short) 1);
         }
       }
     } catch (IOException e) {

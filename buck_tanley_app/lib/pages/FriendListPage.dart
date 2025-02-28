@@ -1,6 +1,6 @@
 import 'package:buck_tanley_app/SetUp.dart';
-import 'package:buck_tanley_app/utils/Test.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FriendListPage extends StatefulWidget {
   const FriendListPage({super.key});
@@ -14,20 +14,11 @@ class _FriendListPageState extends State<FriendListPage> {
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      final user =
-          app_provider.Provider.of<UserProvider>(context, listen: false).user;
+      final user = getIt<UserProvider>().user;
       if (user != null) {
-        app_provider.Provider.of<FriendProvider>(context, listen: false)
-            .loadFriends(user.userId);
+        getIt<FriendProvider>().loadFriends(user.userId);
       }
     });
-  }
-
-
-  @override
-  void initState() {
-    super.initState();
-    friends.sort((a, b) => a.nickname.compareTo(b.nickname));
   }
 
   @override
@@ -41,9 +32,7 @@ class _FriendListPageState extends State<FriendListPage> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             width: screenWidth,
-            decoration: BoxDecoration(
-                border:
-                    Border(bottom: BorderSide(color: Colors.grey, width: 1))),
+            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey, width: 1))),
             child: Text("친구 목록", style: TextStyle(fontSize: 25)),
           ),
         ),
@@ -70,7 +59,7 @@ class _FriendListPageState extends State<FriendListPage> {
           ),
         ),
         Expanded(
-          child: app_provider.Consumer<FriendProvider>(
+          child: Consumer<FriendProvider>(
             builder: (context, friendProvider, child) {
               if (friendProvider.isLoading) {
                 return Center(child: CircularProgressIndicator()); // 로딩 중

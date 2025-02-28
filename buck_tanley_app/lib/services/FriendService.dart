@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 class FriendService {
   Future<List<UserDTO>> loadFriends(String userId) async {
-    final response = await http.get(Uri.parse('${Server.apiUrl}/$userId'));
+    final response = await http.get(Uri.parse('${Server.friendUrl}/$userId'), headers: Server.header);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body)['data']; // API 응답에서 데이터 추출
