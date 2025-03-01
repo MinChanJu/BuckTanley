@@ -14,10 +14,8 @@ class _FriendListPageState extends State<FriendListPage> {
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
-      final user = getIt<UserProvider>().user;
-      if (user != null) {
-        getIt<FriendProvider>().loadFriends(user.userId);
-      }
+      final String userId = getIt<UserProvider>().userId;
+      getIt<FriendProvider>().loadFriends(userId);
     });
   }
 

@@ -1,5 +1,6 @@
 import 'package:buck_tanley_app/SetUp.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
@@ -9,33 +10,19 @@ class ChatListPage extends StatefulWidget {
 }
 
 class _ChatListPageState extends State<ChatListPage> {
-  List<UserDTO> friends = [
-    UserDTO(userId: "te", nickname: "가위", image: "", introduction: "ㅋㅌㅍㅇ류", gender: false, age: 25, status: 1),
-    UserDTO(userId: "rnt", nickname: "커피", image: "", introduction: "ㅇ륭륜ㅁㅇㅍ", gender: false, age: 18, status: 2),
-    UserDTO(userId: "khmk", nickname: "러아", image: "", introduction: "ㄴㅇㅍㄴㅁ ㄹ", gender: true, age: 27, status: 0),
-    UserDTO(userId: "xnj", nickname: "아러후", image: "", introduction: " ㄹㅇ ㅎㄹ", gender: false, age: 24, status: 3),
-    UserDTO(userId: "fob", nickname: "무래하", image: "", introduction: "ㄹㅎ ㅇㄹ ㅇㄴㄴㅇ", gender: true, age: 22, status: 3),
-  ];
-
   @override
   void initState() {
     super.initState();
-    sortFriends();
-    getIt<MessageProvider>().addListener(sortFriends);
+    Future.delayed(Duration.zero, () async {
+      final String userId = getIt<UserProvider>().userId;
+      await getIt<FriendProvider>().loadFriends(userId);
+    });
   }
 
-  @override
-  void dispose() {
-    // 메모리 누수를 방지하기 위해 리스너 제거
-    getIt<MessageProvider>().removeListener(sortFriends);
-    super.dispose();
-  }
-
-  void sortFriends() {
+  List<UserDTO> sortFriends(List<UserDTO> friends) {
     String userId = getIt<UserProvider>().userId;
     MessageProvider messageProvider = getIt<MessageProvider>();
 
-    setState(() {
       friends.sort((a, b) {
         String roomIdA = Room.getRoomId(userId, a.userId);
         String roomIdB = Room.getRoomId(userId, b.userId);
@@ -43,7 +30,8 @@ class _ChatListPageState extends State<ChatListPage> {
         Message? lastA = messageProvider.getlastForRoom(roomIdA);
         Message? lastB = messageProvider.getlastForRoom(roomIdB);
 
-        if (lastA == null && lastB == null) return a.nickname.compareTo(b.nickname);
+        if (lastA == null && lastB == null)
+          return a.nickname.compareTo(b.nickname);
         if (lastA == null) return 1;
         if (lastB == null) return -1;
 
@@ -60,7 +48,7 @@ class _ChatListPageState extends State<ChatListPage> {
             return 0;
         }
       });
-    });
+    return friends;
   }
 
   @override
@@ -72,15 +60,29 @@ class _ChatListPageState extends State<ChatListPage> {
           padding: const EdgeInsets.all(8.0),
           child: Container(
             width: screenWidth,
-            decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey, width: 1))),
+            decoration: BoxDecoration(
+                border:
+                    Border(bottom: BorderSide(color: Colors.grey, width: 1))),
             child: Text("채팅", style: TextStyle(fontSize: 25)),
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: friends.length,
-            itemBuilder: (context, index) {
-              return ChatWidget(friend: friends[index]);
+          child: Consumer<FriendProvider>(
+            builder: (context, friendProvider, child) {
+              if (friendProvider.isLoading) {
+                return Center(child: CircularProgressIndicator()); // 로딩 중
+              }
+              List<UserDTO> friends = friendProvider.friends;
+              if (friends.isEmpty) {
+                return Center(child: Text("이야기할 친구가 없습니다.")); // 친구 없음
+              }
+              friends = sortFriends(friends);
+              return ListView.builder(
+                itemCount: friends.length,
+                itemBuilder: (context, index) {
+                  return ChatWidget(friend: friends[index]);
+                },
+              );
             },
           ),
         ),

@@ -16,10 +16,23 @@ class FriendProvider extends ChangeNotifier {
 
     try {
       _friends = await _friendService.loadFriends(userId);
+      print('친구 목록 불러오기 성공');
     } catch (e) {
       print('친구 목록 로딩 실패: $e');
     } finally {
       _isLoading = false;
+      _friends.sort((a, b) {
+        if (a.status==b.status) {
+          return a.nickname.compareTo(b.nickname);
+        }
+
+        if (a.status==0) {
+          return 1;
+        }
+        else {
+          return a.status.compareTo(b.status);
+        }
+      });
       notifyListeners();
     }
   }

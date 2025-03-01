@@ -60,6 +60,7 @@ export 'package:buck_tanley_app/widgets/OutlineTextWidget.dart';
 
 
 // 🛠️ GetIt & instance 설정
+import 'package:buck_tanley_app/provider/FriendProvider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
