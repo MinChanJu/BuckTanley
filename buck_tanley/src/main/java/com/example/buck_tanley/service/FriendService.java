@@ -25,13 +25,11 @@ public class FriendService {
 
     public Friend createFriend(String userId1, String userId2) {
         Optional<Friend> findFriend = friendRepository.findByUserId1AndUserId2(userId1, userId2);
-        if (findFriend.isPresent()) { // 양측 친구 요청
-            Friend friend = findFriend.get();
-            friend.setStatus((short) 0); // 친구 요청 수락
-            return friendRepository.save(friend);
+        if (findFriend.isPresent()) { // 이미 친구인 경우
+            throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
         }
 
-        Friend friend = new Friend(null, userId1, userId2, (short) 1, ZonedDateTime.now()); // 친구 요청 전송
+        Friend friend = new Friend(null, userId1, userId2, ZonedDateTime.now()); // 친구 요청 전송
         return friendRepository.save(friend);
     }
 
@@ -40,12 +38,7 @@ public class FriendService {
         if (findFriend.isEmpty()) {
             throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
         }
-
-        if (friend.getStatus() > 0) { // 요청 수락
-            friendRepository.save(friend);
-        } else { // 요청 거절
-            friendRepository.delete(friend);
-        }
+        friendRepository.save(friend);
     }
 
     public void deleteFriend(Long id) { // 친구 삭제

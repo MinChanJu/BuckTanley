@@ -17,6 +17,7 @@ class ChattingPage extends StatefulWidget {
 class _ChattingPageState extends State<ChattingPage> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _textController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   final String userId = getIt<UserProvider>().user!.userId;
   late WebSocketService wsService;
   final List<Message> messages = [];
@@ -60,6 +61,7 @@ class _ChattingPageState extends State<ChattingPage> {
   void dispose() {
     _scrollController.dispose();
     _textController.dispose();
+    _focusNode.dispose();
     if (widget.random) {
       Message sendMessage = Message(id: 1, content: "text", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
       wsService.sendMessage(sendMessage.toJson());
@@ -84,6 +86,7 @@ class _ChattingPageState extends State<ChattingPage> {
 
     Message sendMessage = Message(id: null, content: text, sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
     wsService.sendMessage(sendMessage.toJson());
+    FocusScope.of(context).requestFocus(_focusNode);
   }
 
   void _friendRequest() {
@@ -256,6 +259,7 @@ class _ChattingPageState extends State<ChattingPage> {
             Expanded(
               child: TextField(
                 controller: _textController,
+                focusNode: _focusNode,
                 decoration: const InputDecoration(
                   labelText: "메시지 입력",
                   border: OutlineInputBorder(),

@@ -152,6 +152,8 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         if (userMap.isEmpty()) {
           userSessions.remove(userId);
           userService.updateUserStatus(userId, (short) 0);
+        } else {
+          userService.updateUserStatus(userId, (short) 1);
         }
       }
     } catch (IOException e) {

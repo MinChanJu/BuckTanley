@@ -64,6 +64,7 @@ import 'package:buck_tanley_app/provider/FriendProvider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:buck_tanley_app/provider/MessageProvider.dart';
 import 'package:buck_tanley_app/provider/UserProvider.dart';
+import 'package:buck_tanley_app/provider/FriendProvider.dart';
 import 'package:flutter/material.dart';
 
 final getIt = GetIt.instance;

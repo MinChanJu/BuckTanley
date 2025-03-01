@@ -30,9 +30,6 @@ public class Friend {
     @Column(name = "user_id2", columnDefinition = "text")
     private String userId2;
 
-    @Column(name = "status")
-    private Short status;
-
     @Column(name = "created_at")
     private ZonedDateTime createdAt;
 }
