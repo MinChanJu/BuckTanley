@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -65,6 +65,7 @@ class MessageProvider with ChangeNotifier {
   // 특정 방에 메시지 추가
   void addMessage(String roomId, Message message) {
     _roomMessages.putIfAbsent(roomId, () => []).add(message);
+    if (message.sender != getIt<UserProvider>().userId) Show.snackbarTop(message.sender, message.content, getIt<FriendProvider>().getFriend(message.sender)?.image);
     notifyListeners();
   }
 

@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -36,24 +36,27 @@ class _FriendListPageState extends State<FriendListPage> {
         ),
         Padding(
           padding: const EdgeInsets.all(10.0),
-          child: Row(
-            children: [
-              CircleAvatar(
-                radius: 40,
-                backgroundImage: getIt<UserProvider>().userImage,
-                backgroundColor: Colors.grey[400],
-              ),
-              SizedBox(width: 20),
-              Text(
-                user?.nickname ?? "없음",
-                style: TextStyle(
-                  fontSize: 30,
-                  fontWeight: FontWeight.w600,
+          child: TextButton(
+            onPressed: () => Navigate.pushFriendDetail(UserInfo(user: UserDTO.fromUser(user), image: getIt<UserProvider>().userImage), false),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: getIt<UserProvider>().userImage,
+                  backgroundColor: Colors.grey[400],
                 ),
-              ),
-              SizedBox(width: 20),
-              Expanded(child: Text(user?.introduction ?? "")),
-            ],
+                SizedBox(width: 20),
+                Text(
+                  user?.nickname ?? "없음",
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(width: 20),
+                Expanded(child: Text(user?.introduction ?? "")),
+              ],
+            ),
           ),
         ),
         Expanded(

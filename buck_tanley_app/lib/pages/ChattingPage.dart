@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ChattingPage extends StatefulWidget {
-  final UserDTO partner;
-  final ImageProvider partnerImage;
+  final UserInfo partner;
   final bool random;
-  const ChattingPage({super.key, required this.partner, required this.partnerImage, required this.random});
+  const ChattingPage({super.key, required this.partner, required this.random});
 
   @override
   State<ChattingPage> createState() => _ChattingPageState();
@@ -54,7 +53,7 @@ class _ChattingPageState extends State<ChattingPage> {
         print('❌ type: ${wsService.type}, platform: ${wsService.platform} userId: ${wsService.userId}, WebSocket random 오류: $error');
       });
     }
-    roomId = Room.getRoomId(userId, widget.partner.userId);
+    roomId = Room.getRoomId(userId, widget.partner.user.userId);
   }
 
   @override
@@ -63,7 +62,7 @@ class _ChattingPageState extends State<ChattingPage> {
     _textController.dispose();
     _focusNode.dispose();
     if (widget.random) {
-      Message sendMessage = Message(id: 1, content: "text", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+      Message sendMessage = Message(id: 1, content: "text", sender: userId, receiver: widget.partner.user.userId, createdAt: DateTime.now());
       wsService.sendMessage(sendMessage.toJson());
     }
     super.dispose();
@@ -84,7 +83,7 @@ class _ChattingPageState extends State<ChattingPage> {
     _textController.clear();
     if (text.isEmpty) return;
 
-    Message sendMessage = Message(id: null, content: text, sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+    Message sendMessage = Message(id: null, content: text, sender: userId, receiver: widget.partner.user.userId, createdAt: DateTime.now());
     wsService.sendMessage(sendMessage.toJson());
     FocusScope.of(context).requestFocus(_focusNode);
   }
@@ -99,7 +98,7 @@ class _ChattingPageState extends State<ChattingPage> {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            Message sendMessage = Message(id: 4, content: "거절", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+            Message sendMessage = Message(id: 4, content: "거절", sender: userId, receiver: widget.partner.user.userId, createdAt: DateTime.now());
             print("친구 요청 거절 : ${sendMessage.toJson()}");
             wsService.sendMessage(sendMessage.toJson());
             Show.snackbar('친구 요청을 거절했습니다.');
@@ -109,7 +108,7 @@ class _ChattingPageState extends State<ChattingPage> {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            Message sendMessage = Message(id: 3, content: "수락", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+            Message sendMessage = Message(id: 3, content: "수락", sender: userId, receiver: widget.partner.user.userId, createdAt: DateTime.now());
             print("친구 요청 수락 : ${sendMessage.toJson()}");
             wsService.sendMessage(sendMessage.toJson());
             Show.snackbar('친구 요청을 수락했습니다.');
@@ -118,7 +117,7 @@ class _ChattingPageState extends State<ChattingPage> {
         ),
       ],
       partner: widget.partner,
-      partnerImage: widget.partnerImage,
+      partnerRandom: widget.random,
     );
   }
 
@@ -140,7 +139,7 @@ class _ChattingPageState extends State<ChattingPage> {
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
-            Message sendMessage = Message(id: 2, content: "친구 요청", sender: userId, receiver: widget.partner.userId, createdAt: DateTime.now());
+            Message sendMessage = Message(id: 2, content: "친구 요청", sender: userId, receiver: widget.partner.user.userId, createdAt: DateTime.now());
             print("친구 요청 : ${sendMessage.toJson()}");
             setState(() => add = true);
             wsService.sendMessage(sendMessage.toJson());
@@ -150,7 +149,7 @@ class _ChattingPageState extends State<ChattingPage> {
         ),
       ],
       partner: widget.partner,
-      partnerImage: widget.partnerImage,
+      partnerRandom: widget.random,
     );
   }
 
@@ -200,16 +199,16 @@ class _ChattingPageState extends State<ChattingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      endDrawer: MenuWidget(userDTO: widget.partner, imageProvider: widget.partnerImage),
+      endDrawer: MenuWidget(user: widget.partner),
       appBar: AppBar(
         title: Center(
           child: TextButton(
             onPressed: () {
-              Navigate.pushFriendDetail(widget.partner, widget.partnerImage);
+              Navigate.pushFriendDetail(widget.partner, widget.random);
             },
             child: CircleAvatar(
               radius: 20,
-              backgroundImage: widget.partnerImage,
+              backgroundImage: widget.partner.image,
               backgroundColor: const Color.fromARGB(255, 209, 209, 209),
             ),
           ),

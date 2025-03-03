@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:http/http.dart' as http;
 
 class FriendService {

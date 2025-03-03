@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 
 class MatchingPage extends StatefulWidget {
@@ -15,8 +15,7 @@ class _MatchingPageState extends State<MatchingPage> {
   bool showMiniGame = false;
   bool match = false;
   bool accept = false;
-  UserDTO partner = UserDTO.init(null);
-  ImageProvider partnerImage = ImageConverter.getImage(null);
+  UserInfo partner = UserInfo.init(null);
   late WebSocketService matchWS;
   late MatchDTO matchDTO;
 
@@ -26,8 +25,7 @@ class _MatchingPageState extends State<MatchingPage> {
       showMiniGame = false;
       match = false;
       accept = false;
-      partner = UserDTO.init(null);
-      partnerImage = ImageConverter.getImageDecode(null);
+      partner = UserInfo.init(null);
     });
   }
 
@@ -43,11 +41,10 @@ class _MatchingPageState extends State<MatchingPage> {
             varInit();
             setState(() {
               match = true;
-              partner = matchDTO.user2;
-              partnerImage = ImageConverter.getImageDecode(partner.image);
+              partner = UserInfo(user: matchDTO.user2, image: ImageConverter.getImageNetwork(matchDTO.user2.image));
             });
           } else {
-            if (matchDTO.status == "매칭 승인") Navigate.pushChatting(partner, partnerImage, true);
+            if (matchDTO.status == "매칭 승인") Navigate.pushChatting(partner, true);
             varInit();
             matchWS.disconnect();
           }
@@ -125,7 +122,7 @@ class _MatchingPageState extends State<MatchingPage> {
   Widget after() {
     return Column(
       children: [
-        Text(partner.nickname, style: TextStyle(fontSize: 30)),
+        Text(partner.user.nickname, style: TextStyle(fontSize: 30)),
         SizedBox(height: 20),
         if (!accept)
           Row(
@@ -140,7 +137,7 @@ class _MatchingPageState extends State<MatchingPage> {
                   backgroundColor: Colors.green,
                 ),
                 onPressed: () {
-                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(partner.userId));
+                  MatchDTO sendMatch = MatchDTO(status: "수락", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(partner.user.userId));
                   matchWS.sendMessage(sendMatch.toJson());
                   setState(() {
                     accept = true;
@@ -159,7 +156,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 ),
                 onPressed: () {
                   if (mounted) {
-                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(partner.userId));
+                    MatchDTO sendMatch = MatchDTO(status: "거절", user1: UserDTO.init(getIt<UserProvider>().userId), user2: UserDTO.init(partner.user.userId));
                     matchWS.sendMessage(sendMatch.toJson());
                   }
                 },
@@ -213,7 +210,7 @@ class _MatchingPageState extends State<MatchingPage> {
                 curve: Curves.easeInOut,
                 child: CircleAvatar(
                   radius: 90,
-                  backgroundImage: partnerImage,
+                  backgroundImage: partner.image,
                   backgroundColor: Colors.transparent,
                 ),
               ),

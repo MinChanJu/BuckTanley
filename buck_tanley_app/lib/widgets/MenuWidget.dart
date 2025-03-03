@@ -1,10 +1,9 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 
 class MenuWidget extends StatefulWidget {
-  final UserDTO userDTO;
-  final ImageProvider imageProvider;
-  const MenuWidget({super.key, required this.userDTO, required this.imageProvider});
+  final UserInfo user;
+  const MenuWidget({super.key, required this.user});
 
   @override
   State<MenuWidget> createState() => _MenuWidgetState();
@@ -24,7 +23,7 @@ class _MenuWidgetState extends State<MenuWidget> {
             decoration: BoxDecoration(
               color: const Color.fromARGB(255, 209, 209, 209),
               image: DecorationImage(
-                image: widget.imageProvider,
+                image: widget.user.image,
                 fit: BoxFit.cover,
               ),
             ),
@@ -33,12 +32,12 @@ class _MenuWidgetState extends State<MenuWidget> {
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => ImageWidget(imageProvider: widget.imageProvider),
+                  builder: (context) => ImageWidget(imageProvider: widget.user.image),
                 );
               },
               child: OutlineTextWidget(
                 Text(
-                  widget.userDTO.nickname,
+                  widget.user.user.nickname,
                   style: const TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.bold,
@@ -50,22 +49,22 @@ class _MenuWidgetState extends State<MenuWidget> {
           ),
           ListTile(
             leading: Text("소개"),
-            title: Text(widget.userDTO.introduction),
+            title: Text(widget.user.user.introduction),
             onTap: () {},
           ),
           ListTile(
             leading: Text("성별"),
-            title: Text(widget.userDTO.gender ? "남성" : "여성"),
+            title: Text(widget.user.user.gender ? "남성" : "여성"),
             onTap: () {},
           ),
           ListTile(
             leading: Text("나이"),
-            title: Text(widget.userDTO.age.toString()),
+            title: Text(widget.user.user.age.toString()),
             onTap: () {},
           ),
           ListTile(
             leading: Text("상태"),
-            title: Text(widget.userDTO.status.toString()),
+            title: Text(widget.user.user.status.toString()),
             onTap: () {},
           ),
           ListTile(
