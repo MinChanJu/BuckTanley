@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 class RegisterPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _pwController = TextEditingController();
   final TextEditingController _nicknameController = TextEditingController(); // 닉네임
   final TextEditingController _bioController = TextEditingController(); // 자기소개
-  final TextEditingController _ageController = TextEditingController(); // 생년월일
+  int selectedAge = 20; // 기본 나이
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   bool selectedGender = true;
@@ -28,7 +29,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _pwController.dispose();
     _nicknameController.dispose();
     _bioController.dispose();
-    _ageController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
     super.dispose();
@@ -45,7 +45,7 @@ class _RegisterPageState extends State<RegisterPage> {
       image: null,
       introduction: _bioController.text,
       gender: selectedGender,
-      age: int.tryParse(_ageController.text) ?? 0,
+      age: selectedAge,
       status: 0,
       createdAt: DateTime.now(),
     );
@@ -170,20 +170,41 @@ class _RegisterPageState extends State<RegisterPage> {
                       decoration: const InputDecoration(labelText: '닉네임'),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _ageController,
-                      decoration: const InputDecoration(
-                        labelText: '나이',
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '나이',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        DropdownButton<int>(
+                          value: selectedAge,
+                          items: List.generate(100, (index) => index).map((int value) {
+                            return DropdownMenuItem<int>(
+                              value: value,
+                              child: Text(value.toString()),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedAge = value!;
+                            });
+                          },
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 20),
 
                     //비밀번호 찾기용
                     TextField(
                       controller: _phoneController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      maxLength: 11,
                       decoration: const InputDecoration(
-                        hintText: '010-0000-0000',
+                        hintText: '01012345678',
                         labelText: '전화번호',
+                        counterText: "",
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -193,36 +214,42 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                     const SizedBox(height: 20),
 
-                    const Text(
-                      "성별",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Radio<bool>(
-                          value: true,
-                          groupValue: selectedGender,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedGender = value!;
-                            });
-                          },
+                        const Text(
+                          "성별",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                        const Text("남성"),
-                        const SizedBox(width: 20),
-                        Radio<bool>(
-                          value: false,
-                          groupValue: selectedGender,
-                          onChanged: (value) {
-                            setState(() {
-                              selectedGender = value!;
-                            });
-                          },
+                        Row(
+                          children: [
+                            Radio<bool>(
+                              value: true,
+                              groupValue: selectedGender,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedGender = value!;
+                                });
+                              },
+                            ),
+                            const Text("남성"),
+                            const SizedBox(width: 20),
+                            Radio<bool>(
+                              value: false,
+                              groupValue: selectedGender,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedGender = value!;
+                                });
+                              },
+                            ),
+                            const Text("여성"),
+                          ],
                         ),
-                        const Text("여성"),
                       ],
                     ),
                     const SizedBox(height: 20),
+                    
                     const Text(
                       "자기소개 (20자 미만)",
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

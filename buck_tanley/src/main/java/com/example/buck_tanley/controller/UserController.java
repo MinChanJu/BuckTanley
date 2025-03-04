@@ -50,4 +50,11 @@ public class UserController {
         ApiResponse<User> response = new ApiResponse<>(201, true, "회원가입 성공", user);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
+    @PostMapping("/update")
+    public ResponseEntity<ApiResponse<User>> updateUser(@RequestBody User userDetail) {
+        User user = userService.updateUser(userDetail);
+        ApiResponse<User> response = new ApiResponse<>(200, true, "회원정보 수정 성공", user);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }
