@@ -62,4 +62,6 @@ class ImageConverter {
     image.resolve(ImageConfiguration()).addListener(listener);
     return completer.future;
   }
+
+  static encodeImage(Imager? imager) {}
 }
