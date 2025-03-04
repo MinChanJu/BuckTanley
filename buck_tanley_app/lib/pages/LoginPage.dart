@@ -65,12 +65,14 @@ class _LoginPageState extends State<LoginPage> {
                     TextField(
                       controller: _idController,
                       decoration: const InputDecoration(labelText: 'ID'),
+                      onSubmitted: (_) => _loginUser(),
                     ),
                     const SizedBox(height: 10),
                     TextField(
                       controller: _pwController,
                       decoration: InputDecoration(labelText: 'PassWord'),
                       obscureText: true,
+                      onSubmitted: (_) => _loginUser(),
                     ),
                     const SizedBox(height: 20),
                     Align(
