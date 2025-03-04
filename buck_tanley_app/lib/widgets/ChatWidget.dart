@@ -11,7 +11,7 @@ class ChatWidget extends StatelessWidget {
     ImageProvider friendImage = ImageConverter.getImageDecode(friend.image);
     final messageProvider = context.watch<MessageProvider>();
     final roomId = Room.getRoomId(getIt<UserProvider>().userId, friend.userId);
-    Message? last = messageProvider.getlastForRoom(roomId);
+    Message? last = messageProvider.getLastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
       child: ElevatedButton(
