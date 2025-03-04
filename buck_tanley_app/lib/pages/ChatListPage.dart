@@ -27,8 +27,8 @@ class _ChatListPageState extends State<ChatListPage> {
       String roomIdA = Room.getRoomId(userId, a.userId);
       String roomIdB = Room.getRoomId(userId, b.userId);
 
-      Message? lastA = messageProvider.getlastForRoom(roomIdA);
-      Message? lastB = messageProvider.getlastForRoom(roomIdB);
+      Message? lastA = messageProvider.getLastForRoom(roomIdA);
+      Message? lastB = messageProvider.getLastForRoom(roomIdB);
 
       if (lastA == null && lastB == null) return a.nickname.compareTo(b.nickname);
       if (lastA == null) return 1;
@@ -69,7 +69,7 @@ class _ChatListPageState extends State<ChatListPage> {
               if (friendProvider.isLoading) {
                 return Center(child: CircularProgressIndicator()); // 로딩 중
               }
-              List<UserDTO> friends = friendProvider.friends;
+              List<UserDTO> friends = friendProvider.friends.toList();
               if (friends.isEmpty) {
                 return Center(child: Text("이야기할 친구가 없습니다.")); // 친구 없음
               }

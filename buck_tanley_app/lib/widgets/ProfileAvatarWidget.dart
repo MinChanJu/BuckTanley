@@ -17,14 +17,14 @@ class ProfileAvatarWidget extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: radius,
-              backgroundColor: Colors.grey[300], // ✅ 기본 배경
+              backgroundColor: Colors.grey[800], // ✅ 기본 배경
               backgroundImage: snapshot.hasData ? snapshot.data : null, // ✅ 로드된 이미지 적용
               child: snapshot.connectionState == ConnectionState.waiting
                   ? Padding(
                       padding: EdgeInsets.all(radius * 2 / 3),
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Colors.black,
+                        color: Colors.white,
                       ),
                     ) // ✅ 로딩 중 표시
                   : null, // ✅ 이미지가 로드되면 제거

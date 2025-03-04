@@ -11,7 +11,7 @@ class ChatWidget extends StatelessWidget {
     // final messageProvider = getIt<MessageProvider>();
     final messageProvider = context.watch<MessageProvider>();
     final roomId = Room.getRoomId(getIt<UserProvider>().userId, friend.userId);
-    Message? last = messageProvider.getlastForRoom(roomId);
+    Message? last = messageProvider.getLastForRoom(roomId);
     return Padding(
       padding: const EdgeInsets.only(top: 10.0, left: 10.0, right: 10.0),
       child: ElevatedButton(
@@ -28,11 +28,6 @@ class ChatWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             ProfileAvatarWidget(imageUrl: friend.image),
-            // CircleAvatar(
-            //   radius: 25,
-            //   backgroundImage: friend.image,
-            //   backgroundColor: Color.fromARGB(255, 209, 209, 209),
-            // ),
             SizedBox(width: 20),
             Expanded(
               child: Column(

@@ -58,10 +58,23 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
   
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+flutter_launcher_icons:
+  android: true
+  ios: true
+  macos:
+    generate: true  # ✅ macOS 지원을 올바르게 설정
+    image_path: "assets/images/BuckTanleyLogo.png"  # 아이콘 경로
+  windows:
+    generate: true  # ✅ Windows 지원을 올바르게 설정
+    image_path: "assets/images/BuckTanleyLogo.png"  # 아이콘 경로
+  image_path: "assets/images/BuckTanleyLogo.png"  # 아이콘 경로
+  adaptive_icon_background: "assets/images/BuckTanleyLogo.png"  # 아이콘 배경색
+  adaptive_icon_foreground: "assets/images/BuckTanleyLogoClear.png"  # 아이콘 전경색
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -76,6 +89,8 @@ flutter:
     - assets/images/
     - assets/images/block.png
     - assets/images/BuckTanleyLogo.png
+    - assets/images/BuckTanleyLogoClear.png
+    - assets/images/defaultImage.png
     - assets/images/dinosaur1.png
     - assets/images/dinosaur2.png
 

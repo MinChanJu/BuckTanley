@@ -46,11 +46,13 @@ class _FriendListPageState extends State<FriendListPage> {
                   backgroundColor: Colors.grey[400],
                 ),
                 SizedBox(width: 20),
-                Text(
-                  user?.nickname ?? "없음",
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Text(
+                    user?.nickname ?? "없음",
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 SizedBox(width: 20),

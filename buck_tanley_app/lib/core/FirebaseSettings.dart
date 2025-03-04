@@ -9,23 +9,28 @@ class FirebaseSettings {
   static String? fcmToken;
 
   static Future<void> init() async {
-    await Firebase.initializeApp(
-      options: currentPlatform,
-    );
+    try {
+      await Firebase.initializeApp(
+        options: currentPlatform,
+      );
 
-    fcmToken = await FirebaseMessaging.instance.getToken();
-    print("📩 FCM Token: $fcmToken"); // ✅ 서버로 전송 필요
+      fcmToken = await FirebaseMessaging.instance.getToken();
+      print("📩 FCM Token: $fcmToken"); // ✅ 서버로 전송 필요
 
+      const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
 
-    const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+      FirebaseMessaging.onBackgroundMessage((RemoteMessage message) => _firebaseMessagingHandler(message, false));
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) => _firebaseMessagingHandler(message, true));
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) => _firebaseMessagingHandler(message, true));
 
-    FirebaseMessaging.onBackgroundMessage((RemoteMessage message) => _firebaseMessagingHandler(message, false));
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) => _firebaseMessagingHandler(message, true));
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) => _firebaseMessagingHandler(message, true));
+      print("📩 Firebase 설정 완료");
+    } catch (e) {
+      print("📩 Firebase 설정 실패: $e");
+    }
   }
 
   static Future<void> _firebaseMessagingHandler(RemoteMessage message, bool foreground) async {

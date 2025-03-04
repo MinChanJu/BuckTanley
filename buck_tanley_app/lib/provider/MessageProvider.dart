@@ -56,7 +56,7 @@ class MessageProvider with ChangeNotifier {
     return _roomMessages[roomId] ?? [];
   }
 
-  Message? getlastForRoom(String roomId) {
+  Message? getLastForRoom(String roomId) {
     List<Message> messages = _roomMessages[roomId] ?? [];
     if (messages.isEmpty) return null;
     return messages[messages.length - 1];

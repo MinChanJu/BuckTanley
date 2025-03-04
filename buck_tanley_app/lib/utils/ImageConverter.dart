@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ImageConverter {
-  static ImageProvider defaultImage = AssetImage("assets/images/BuckTanleyLogo.png");
+  static ImageProvider defaultImage = AssetImage("assets/images/defaultImage.png");
 
   /// 📸 이미지 선택 (웹/모바일 환경 모두 지원)
   static Future<Imager?> pickImage() async {
