@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 
 class Navigate {
@@ -23,24 +23,24 @@ class Navigate {
     }
   }
 
-  static void pushChatting(UserDTO partner, ImageProvider partnerImage, bool random) {
+  static void pushChatting(UserInfo partner, bool random) {
     final context = getIt<GlobalKey<NavigatorState>>().currentContext;
     if (context != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => ChattingPage(partner: partner, partnerImage: partnerImage, random: random)),
+        MaterialPageRoute(builder: (context) => ChattingPage(partner: partner, random: random)),
       );
     } else {
       print('❌ context가 없습니다.');
     }
   }
 
-  static void pushFriendDetail(UserDTO friend, ImageProvider friendImage) {
+  static void pushFriendDetail(UserInfo friend, bool random) {
     final context = getIt<GlobalKey<NavigatorState>>().currentContext;
     if (context != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => FriendDetailPage(friend: friend, friendImage: friendImage)),
+        MaterialPageRoute(builder: (context) => FriendDetailPage(friend: friend, random: random)),
       );
     } else {
       print('❌ context가 없습니다.');

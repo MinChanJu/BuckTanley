@@ -1,10 +1,13 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await setup();
+  await GetItSettings.init();
+  await FirebaseSettings.init();
+  await PermissionSettings.init();
 
   runApp(
     MultiProvider(
@@ -26,6 +29,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
+
   @override
   void initState() {
     super.initState();
@@ -49,10 +53,21 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: "BuckTanley",
       navigatorKey: getIt<GlobalKey<NavigatorState>>(),
+      builder: (context, child) {
+        return Overlay(
+          initialEntries: [
+            OverlayEntry(
+              builder: (context) {
+                return child!;
+              },
+            ),
+          ],
+        );
+      },
       home: Consumer<UserProvider>(
         builder: (context, userProvider, _) {
           if (userProvider.isLogin) {

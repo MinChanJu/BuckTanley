@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -42,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
       nickname: _nicknameController.text,
       phone: _phoneController.text,
       email: _emailController.text,
-      image: ImageConverter.encodeImage(imager),
+      image: null,
       introduction: _bioController.text,
       gender: selectedGender,
       age: selectedAge,
@@ -50,17 +50,44 @@ class _RegisterPageState extends State<RegisterPage> {
       createdAt: DateTime.now(),
     );
 
+    var request = http.MultipartRequest("POST", Uri.parse('${Server.userUrl}/register'));
+    request.headers.addAll({"Accept": "application/json; charset=UTF-8"});
+
+    if (Server.platform == "web" && imager?.webImage != null) {
+      // 🌐 **웹 환경 (Uint8List -> MultipartFile)**
+      request.files.add(http.MultipartFile.fromBytes(
+        'image',
+        imager!.webImage!,
+        filename: "profile.png",
+      ));
+    } else if (Server.platform != "web" && imager?.mobileImage != null) {
+      // 📱 **모바일 환경 (File 사용)**
+      request.files.add(await http.MultipartFile.fromPath(
+        'image',
+        imager!.mobileImage!.path,
+        filename: "profile.png",
+      ));
+    }
+
+    // JSON Body 데이터 추가 (User 객체)
+    request.fields['user'] = jsonEncode(user.toJson());
+
     try {
-      final response = await http.post(Uri.parse('${Server.userUrl}/register'), headers: Server.header, body: jsonEncode(user.toJson()));
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
       final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 201) {
-        Show.snackbar("회원가입 성공: ${responseData['message']}");
+        print("✅ 회원가입 성공: ${responseData['message']}");
+        Show.snackbar("✅ 회원가입 성공: ${responseData['message']}");
+        Navigate.pop();
       } else {
-        Show.snackbar("회원가입 실패: ${responseData['message']}");
+        print("❌ 회원가입 실패: ${responseData['message']}");
+        Show.snackbar("❌ 회원가입 실패: ${responseData['message']}");
       }
     } catch (e) {
-      Show.snackbar("회원가입 중 오류 발생 $e");
+      print("❌ 회원가입 중 오류 발생: $e");
+      Show.snackbar("❌ 회원가입 중 오류 발생: $e");
     }
   }
 
@@ -113,7 +140,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         child: CircleAvatar(
                           radius: 40,
                           backgroundColor: Colors.grey[400],
-                          backgroundImage: imager == null ? null :ImageConverter.getImage(imager),
+                          backgroundImage: imager == null ? null : ImageConverter.getImage(imager),
                           child: (imager == null || (imager!.mobileImage == null && imager!.webImage == null))
                               ? const Icon(
                                   Icons.camera_alt,

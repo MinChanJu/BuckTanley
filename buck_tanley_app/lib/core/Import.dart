@@ -1,3 +1,8 @@
+// Core
+export 'package:buck_tanley_app/core/FirebaseSettings.dart';
+export 'package:buck_tanley_app/core/GetItSettings.dart';
+export 'package:buck_tanley_app/core/PermissionSettings.dart';
+
 // Models
 export 'package:buck_tanley_app/models/dto/ApiResponse.dart';
 export 'package:buck_tanley_app/models/dto/LoginDTO.dart';
@@ -10,6 +15,7 @@ export 'package:buck_tanley_app/models/entity/User.dart';
 
 export 'package:buck_tanley_app/models/Imager.dart';
 export 'package:buck_tanley_app/models/Setting.dart';
+export 'package:buck_tanley_app/models/UserInfo.dart';
 
 // Pages
 export 'package:buck_tanley_app/pages/settings/AppInfoTab.dart';
@@ -31,13 +37,13 @@ export 'package:buck_tanley_app/pages/RegisterPage.dart';
 export 'package:buck_tanley_app/pages/SettingPage.dart';
 
 // Provider
+export 'package:buck_tanley_app/provider/FriendProvider.dart';
 export 'package:buck_tanley_app/provider/MessageProvider.dart';
 export 'package:buck_tanley_app/provider/UserProvider.dart';
-export 'package:buck_tanley_app/provider/FriendProvider.dart';
 
 // Services
-export 'package:buck_tanley_app/services/WebSocketService.dart';
 export 'package:buck_tanley_app/services/FriendService.dart';
+export 'package:buck_tanley_app/services/WebSocketService.dart';
 
 // Utils
 export 'package:buck_tanley_app/utils/ImageConverter.dart';
@@ -57,27 +63,4 @@ export 'package:buck_tanley_app/widgets/MenuWidget.dart';
 export 'package:buck_tanley_app/widgets/MessageWidget.dart';
 export 'package:buck_tanley_app/widgets/MiniGameWidget.dart';
 export 'package:buck_tanley_app/widgets/OutlineTextWidget.dart';
-
-
-// 🛠️ GetIt & instance 설정
-import 'package:buck_tanley_app/provider/FriendProvider.dart';
-import 'package:get_it/get_it.dart';
-import 'package:buck_tanley_app/provider/MessageProvider.dart';
-import 'package:buck_tanley_app/provider/UserProvider.dart';
-import 'package:buck_tanley_app/provider/FriendProvider.dart';
-import 'package:flutter/material.dart';
-
-final getIt = GetIt.instance;
-
-Future<void> setup() async {
-  // Provider 등록
-  getIt.registerSingleton<UserProvider>(UserProvider());
-  getIt.registerSingleton<MessageProvider>(MessageProvider());
-  getIt.registerSingleton<FriendProvider>(FriendProvider());
-
-  // Navigator Key 등록
-  getIt.registerSingleton<GlobalKey<NavigatorState>>(GlobalKey<NavigatorState>());
-
-  // 초기 데이터 로딩
-  await getIt<UserProvider>().loadUser();
-}
+export 'package:buck_tanley_app/widgets/ProfileAvatarWidget.dart';

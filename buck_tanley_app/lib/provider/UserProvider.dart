@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -9,7 +9,7 @@ class UserProvider with ChangeNotifier {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   User? _user;
   LoginDTO? _loginDTO;
-  ImageProvider _userImage = ImageConverter.getImage(null);
+  ImageProvider _userImage = ImageConverter.defaultImage;
 
   User? get user => _user;
   LoginDTO? get loginDTO => _loginDTO;
@@ -43,7 +43,8 @@ class UserProvider with ChangeNotifier {
 
         _user = user;
         _loginDTO = loginDTO;
-        _userImage = ImageConverter.getImageDecode(user.image);
+        _userImage = Image.network(user.image ?? "").image;
+        // _userImage = ImageConverter.getImageDecode(user.image);
         await _storage.write(key: 'loginDTO', value: jsonEncode(_loginDTO!.toJson()));
         notifyListeners();
 

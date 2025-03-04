@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/foundation.dart';
 
 class Server {
@@ -22,7 +22,7 @@ class Server {
     if (kIsWeb) {
       return "web"; // 웹
     } else {
-      return Platform.operatingSystem; // 안드로이드, iOS, macOS, Windows, Linux
+      return Platform.operatingSystem; // android, iOS, macOS, Windows, Linux
     }
   }
 

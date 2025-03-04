@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 
 class LogoutTab extends StatelessWidget {

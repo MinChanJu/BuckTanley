@@ -7,6 +7,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 
 import com.example.buck_tanley.domain.entity.Message;
+import com.example.buck_tanley.service.FcmTokenService;
 import com.example.buck_tanley.service.FriendService;
 import com.example.buck_tanley.service.MessageService;
 import com.example.buck_tanley.service.UserService;
@@ -27,16 +28,17 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
       .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
   private FriendService friendService;
   private MessageService messageService;
+  private FcmTokenService fcmTokenService;
   private UserService userService;
 
 
-  public ChatWebSocketHandler(FriendService friendService, MessageService messageService, UserService userService) {
+  public ChatWebSocketHandler(FriendService friendService, MessageService messageService, UserService userService, FcmTokenService fcmTokenService) {
     this.friendService = friendService;
     this.messageService = messageService;
+    this.fcmTokenService = fcmTokenService;
     this.userService = userService;
   }
 
-  @SuppressWarnings("null")
   @Override
   public void afterConnectionEstablished(WebSocketSession session) {
     String userId = (String) session.getAttributes().get("userId");
@@ -51,7 +53,6 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
     }
   }
 
-  @SuppressWarnings("null")
   @Override
   protected void handleTextMessage(WebSocketSession session, TextMessage textMessage) throws Exception {
     String userId = (String) session.getAttributes().get("userId");
@@ -64,23 +65,24 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
       Message message = objectMapper.readValue(payload, Message.class);
       userSessions.computeIfAbsent(userId, k -> new ConcurrentHashMap<>())
           .computeIfAbsent(platform, k -> new ConcurrentHashMap<>()).put(type, session);
+      String imageUrl = userService.getUserDTO(message.getSender()).getImage();
 
       switch (type) {
         case "chat":
           messageService.createMessage(message);
-          sendMessage(message, 0, type);
-          sendMessage(message, 1, type);
+          sendMessage(message, 0, type, imageUrl);
+          sendMessage(message, 1, type, imageUrl);
           break;
         case "random":
           if (message.getId() == null) { // 메세지 전송
-            sendMessage(message, 0, type);
-            sendMessage(message, 1, type);
+            sendMessage(message, 0, type, imageUrl);
+            sendMessage(message, 1, type, imageUrl);
           } else if (message.getId() == 1) { // 연결 종료
             forceCloseRandomConnection(message.getSender());
             forceCloseRandomConnection(message.getReceiver());
           } else { // 친구 요청 / 2: 요청 / 3: 수락 / 4: 거절 / ? : 아무것도 아님
             System.out.println("친구 요청 : " + message.getSender() + " -> " + message.getReceiver());
-            sendMessage(message, 1, type);
+            sendMessage(message, 1, type, imageUrl);
             if (message.getId() == 3) {
               friendService.createFriend(message.getSender(), message.getReceiver());
             }
@@ -97,7 +99,7 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
   }
 
   // 메세지 전송
-  private void sendMessage(Message message, int SR, String type) throws Exception {
+  private void sendMessage(Message message, int SR, String type, String imageUrl) throws Exception {
     String response = objectMapper.writeValueAsString(message);
     String userId = SR == 0 ? message.getSender() : message.getReceiver();
 
@@ -124,6 +126,9 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
       if (type.equals("random")) {
         forceCloseRandomConnection(message.getSender());
         forceCloseRandomConnection(message.getReceiver());
+      } else {
+        fcmTokenService.sendMessageToToken(message.getReceiver(), message.getSender(), message.getContent(), imageUrl);
+        System.out.println("📤 FCM 전송 완료 " + type + " : " + message.getReceiver());
       }
     }
   }

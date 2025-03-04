@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 
 class MatchDTO {
   final String status;

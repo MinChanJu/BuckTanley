@@ -1,10 +1,14 @@
 class LoginDTO {
   final String userId;
   final String userPw;
+  final String platform;
+  final String? fcmToken;
 
   LoginDTO({
     required this.userId,
     required this.userPw,
+    required this.platform,
+    required this.fcmToken,
   });
 
   // JSON -> 객체 변환
@@ -12,6 +16,8 @@ class LoginDTO {
     return LoginDTO(
       userId: json['userId'],
       userPw: json['userPw'],
+      platform: json['platform'] ?? "", 
+      fcmToken: json['fcmToken'],
     );
   }
 
@@ -20,6 +26,8 @@ class LoginDTO {
     return {
       'userId': userId,
       'userPw': userPw,
+      'platform': platform,
+      'fcmToken': fcmToken,
     };
   }
 }

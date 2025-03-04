@@ -1,7 +1,7 @@
 package com.example.buck_tanley.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.buck_tanley.domain.dto.LoginDTO;
 import com.example.buck_tanley.domain.dto.UserDTO;
@@ -16,11 +16,14 @@ import java.util.*;
 @Service
 public class UserService {
 
-    @Autowired
     private UserRepository userRepository;
+    private ImageService imageService;
+    private FcmTokenService fcmService;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, ImageService imageService, FcmTokenService fcmService) {
         this.userRepository = userRepository;
+        this.imageService = imageService;
+        this.fcmService = fcmService;
     }
 
     public User getUserById(Long id) {
@@ -35,18 +38,19 @@ public class UserService {
     }
 
     public UserDTO getUserDTO(String userId) {
-        if (userId == null) return null;
+        if (userId == null)
+            return null;
 
         Optional<User> findUser = userRepository.findByUserId(userId);
         if (findUser.isEmpty())
             return null;
-        
+
         UserDTO user = new UserDTO(findUser.get());
 
         return user;
     }
 
-    public User createUser(User user) {
+    public User createUser(User user, MultipartFile imageFile) {
         if (userRepository.existsByUserId(user.getUserId()))
             throw new CustomException(ErrorCode.DUPLICATE_USER_ID);
 
@@ -64,6 +68,10 @@ public class UserService {
             throw new CustomException(ErrorCode.INVALID_PASSWORD_LEN); // 길이 10자 이상 확인
 
         user.setStatus((short) 0); // 기존 상태
+        if (imageFile != null) {
+            String imageUrl = imageService.uploadImage(imageFile, user.getUserId());
+            user.setImage(imageUrl);
+        }
 
         user.setCreatedAt(ZonedDateTime.now());
 
@@ -84,7 +92,7 @@ public class UserService {
     public void updateUserStatus(String userId, short status) {
         if (userId == null || status < 0 || status > 3)
             throw new CustomException(ErrorCode.USER_NOT_FOUND);
-        
+
         int record = userRepository.updateUserStatus(userId, status);
         System.out.println("🔄 사용자 상태 변경: " + userId + " " + status + " " + record);
     }
@@ -106,9 +114,13 @@ public class UserService {
         Optional<User> findUser = userRepository.findByUserIdAndUserPw(loginDTO.getUserId(), loginDTO.getUserPw());
         if (findUser.isEmpty())
             throw new CustomException(ErrorCode.INVALID_CREDENTIALS);
+
+        User user = findUser.get();
+        user.setStatus((short) 1);
+        userRepository.save(user);
+
+        fcmService.createFcmToken(loginDTO.getUserId(), loginDTO.getPlatform(), loginDTO.getFcmToken());
         
-        userRepository.updateUserStatus(loginDTO.getUserId(), (short) 1);
-        
-        return findUser.get();
+        return user;
     }
 }

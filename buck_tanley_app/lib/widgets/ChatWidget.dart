@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,7 +8,7 @@ class ChatWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ImageProvider friendImage = ImageConverter.getImageDecode(friend.image);
+    // final messageProvider = getIt<MessageProvider>();
     final messageProvider = context.watch<MessageProvider>();
     final roomId = Room.getRoomId(getIt<UserProvider>().userId, friend.userId);
     Message? last = messageProvider.getLastForRoom(roomId);
@@ -23,17 +23,11 @@ class ChatWidget extends StatelessWidget {
           ),
           backgroundColor: Colors.white,
         ),
-        onPressed: () {
-          Navigate.pushChatting(friend, friendImage, false);
-        },
+        onPressed: () => Navigate.pushChatting(UserInfo(user: friend, image: ImageConverter.getImageNetwork(friend.image)), false),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: friendImage,
-              backgroundColor: Color.fromARGB(255, 209, 209, 209),
-            ),
+            ProfileAvatarWidget(imageUrl: friend.image),
             SizedBox(width: 20),
             Expanded(
               child: Column(

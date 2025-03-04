@@ -1,4 +1,4 @@
-import 'package:buck_tanley_app/SetUp.dart';
+import 'package:buck_tanley_app/core/Import.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 
@@ -24,6 +24,8 @@ class _LoginPageState extends State<LoginPage> {
     final LoginDTO loginDTO = LoginDTO(
       userId: _idController.text,
       userPw: _pwController.text,
+      platform: Server.platform,
+      fcmToken: FirebaseSettings.fcmToken,
     );
 
     if (loginDTO.userId == "" || loginDTO.userPw == "") {
