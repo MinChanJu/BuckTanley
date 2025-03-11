@@ -13,22 +13,29 @@ class MyPageTab extends StatefulWidget {
 
 class _MyPageTab extends State<MyPageTab> {
   final LoginDTO loginDTO = getIt<UserProvider>().loginDTO!;
+  final User userDetail = getIt<UserProvider>().user!;
+
+  // 수정 가능 사항
   final TextEditingController _nicknameController = TextEditingController(); // 닉네임
   final TextEditingController _bioController = TextEditingController(); // 자기소개
-  final TextEditingController _ageController = TextEditingController(); // 생년월일
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  bool selectedGender = true;
+  late int selectedAge;
+  late bool selectedGender;
   Imager? imager;
 
   @override
   void dispose() {
     _nicknameController.dispose();
     _bioController.dispose();
-    _ageController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    _nicknameController.text = userDetail.nickname;
+    _bioController.text = userDetail.introduction;
+    selectedAge = userDetail.age;
+    selectedGender = userDetail.gender;
+    super.initState();
   }
 
   Future<void> _updateUser() async {
@@ -37,12 +44,12 @@ class _MyPageTab extends State<MyPageTab> {
       userId: loginDTO.userId,
       userPw: loginDTO.userPw,
       nickname: _nicknameController.text,
-      phone: _phoneController.text,
-      email: _emailController.text,
+      phone: userDetail.phone,
+      email: userDetail.email,
       image: ImageConverter.encodeImage(imager),
       introduction: _bioController.text,
       gender: selectedGender,
-      age: int.tryParse(_ageController.text) ?? 0,
+      age: selectedAge,
       status: 0,
       createdAt: DateTime.now(),
     );
@@ -123,33 +130,98 @@ class _MyPageTab extends State<MyPageTab> {
                     ),
                     const SizedBox(height: 10),
 
+                    Row(
+                      children: [
+                        Text(
+                          'ID: ',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),
+                        ),
+                        Text(
+                          userDetail.userId,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Text(
+                          '\t\t수정불가',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
                     TextField(
                       controller: _nicknameController,
                       decoration: const InputDecoration(labelText: '닉네임'),
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _ageController,
-                      decoration: const InputDecoration(
-                        labelText: '나이',
-                      ),
+
+                    Row(
+                      children: [
+                        Text(
+                          '전화번호: ',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),
+                        ),
+                        Text(
+                          userDetail.phone,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Text(
+                          '\t\t수정불가',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                        )
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text(
+                          'e-mail: ',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,),
+                        ),
+                        Text(
+                          userDetail.email,
+                          style: TextStyle(fontSize: 16),
+                        ),
+                        Expanded(
+                          child: Container(),
+                        ),
+                        Text(
+                          '\t\t수정불가',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.deepOrange),
+                        )
+                      ],
                     ),
                     const SizedBox(height: 10),
 
-                    //비밀번호 찾기용
-                    TextField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        hintText: '010-0000-0000',
-                        labelText: '전화번호',
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          '나이',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        DropdownButton<int>(
+                          value: selectedAge,
+                          items: List.generate(100, (index) => index).map((int value) {
+                            return DropdownMenuItem<int>(
+                              value: value,
+                              child: Text(value.toString()),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              selectedAge = value!;
+                            });
+                          },
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'e-mail'),
-                    ),
-                    const SizedBox(height: 20),
 
                     const Text(
                       "성별",

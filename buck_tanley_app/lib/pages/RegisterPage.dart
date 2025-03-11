@@ -170,6 +170,26 @@ class _RegisterPageState extends State<RegisterPage> {
                       decoration: const InputDecoration(labelText: '닉네임'),
                     ),
                     const SizedBox(height: 10),
+
+                    //비밀번호 찾기용
+                    TextField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      maxLength: 11,
+                      decoration: const InputDecoration(
+                        hintText: '01012345678',
+                        labelText: '전화번호',
+                        counterText: "",
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(labelText: 'e-mail'),
+                    ),
+                    const SizedBox(height: 10),
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -193,26 +213,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
-
-                    //비밀번호 찾기용
-                    TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      maxLength: 11,
-                      decoration: const InputDecoration(
-                        hintText: '01012345678',
-                        labelText: '전화번호',
-                        counterText: "",
-                      ),
-                    ),
                     const SizedBox(height: 10),
-                    TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'e-mail'),
-                    ),
-                    const SizedBox(height: 20),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -233,7 +234,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               },
                             ),
                             const Text("남성"),
-                            const SizedBox(width: 20),
+                            const SizedBox(width: 10),
                             Radio<bool>(
                               value: false,
                               groupValue: selectedGender,
@@ -248,7 +249,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 10),
                     
                     const Text(
                       "자기소개 (20자 미만)",
