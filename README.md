@@ -1,7 +1,11 @@
 # BuckTanley
-Random Chatting for Korean
+## Dating Application for Korean
 
-# 할일
-- 친구 조회 방법
-  - 한번 조회하고 저장해놓을 경우 문제점: 상태 변화 감지 어려움 -> 대안: 상태가 바뀌면 웹소켓으로 모든 친구에게 전달 (서버 측 속도 문제)
-  - 계속 조회할 경우 문제점: 응답 받는데 속도 문제
+<div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center">
+  <img src="https://raw.githubusercontent.com/MinChanJu/BuckTanley/MinChan/images/dating_app1.png" width="200">
+  <img src="https://raw.githubusercontent.com/MinChanJu/BuckTanley/MinChan/images/dating_app2.png" width="200">
+  <img src="https://raw.githubusercontent.com/MinChanJu/BuckTanley/MinChan/images/dating_app3.png" width="200">
+  <img src="https://raw.githubusercontent.com/MinChanJu/BuckTanley/MinChan/images/dating_app4.png" width="200">
+  <img src="https://raw.githubusercontent.com/MinChanJu/BuckTanley/MinChan/images/dating_app5.png" width="200">
+  <img src="https://raw.githubusercontent.com/MinChanJu/BuckTanley/MinChan/images/dating_app6.png" width="200">
+</div>
